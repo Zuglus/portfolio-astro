@@ -1,5 +1,4 @@
 ---
-// Предполагая, что koltsa_fon1.svg находится в extra-ephemera/src/assets/images/
 import buttonCircleImage from '../assets/images/koltsa_fon1.svg';
 
 const telegramLink = "https://t.me/Migranovap";
@@ -12,15 +11,15 @@ const telegramLink = "https://t.me/Migranovap";
       class="w-full h-full object-contain" 
       width={buttonCircleImage.width}
       height={buttonCircleImage.height}
-      loading="lazy" /* Добавляем ленивую загрузку для фоновых/декоративных изображений */
-      decoding="async" /* Помогает браузеру с рендерингом */
+      loading="lazy"
+      decoding="async"
     />
   </div>
   <div class="mx-auto px-4 max-w-[75rem] relative">
     <a 
       href={telegramLink}
       target="_blank"
-      rel="noreferrer noopener" /* Добавляем noopener для безопасности */
+      rel="noreferrer noopener"
       class="flex justify-center items-center bg-white text-[#3624A6] hover:text-white mx-auto md:ml-[25.375rem] rounded-[3.65625rem] md:rounded-[2.4375rem] w-[36.375rem] md:w-[24.25rem] h-[7.3125rem] md:h-[4.875rem] font-medium font-onest text-[3.75rem] md:text-[2.5rem] text-center leading-tight tracking-[0.01em] transition-[background,color] duration-700 ease-in-out hover:bg-gradient-to-t hover:from-[#1C1257] hover:to-[#312098]"
     >
       <span class="relative">связаться</span>

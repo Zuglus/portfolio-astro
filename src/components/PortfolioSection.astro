@@ -1,19 +1,8 @@
 ---
 import ProjectCard from './ProjectCard.astro';
-import type { PortfolioItem } from '../types';
-import { projects } from '../data/portfolio';
+import { portfolioData } from '../data/portfolio';
 import ringsImage from '../assets/images/rings_with_circle.svg';
 
-// Определяем интерфейс пропсов, если данные приходят извне
-interface Props {
-  portfolioData?: PortfolioItem[];
-}
-
-// Получаем данные из пропсов или используем стандартные
-const { portfolioData: externalData } = Astro.props;
-const portfolioItems = externalData || projects;
-
-// Классы стилей (адаптированы из оригинального проекта)
 const sectionClass = 'relative mx-auto px-4 py-[7.75rem] max-w-[75rem]';
 const headerWrapperClass = 'relative mb-[4.1875rem] text-center z-0';
 const decorationClass = 'absolute top-[-2.875rem] md:top-[-1.875rem] left-[50%] w-[25.875rem] md:w-[17.25rem] h-[28.0125rem] md:h-[18.675rem] transform -translate-x-[20.6rem] md:-translate-x-[13.625rem] z-0';
@@ -38,15 +27,8 @@ const gridClass = 'relative z-10 gap-[2.71875rem] md:gap-[1.8125rem] grid grid-c
   </div>
 
   <div class={gridClass}>
-    {portfolioItems.map((project) => (
+    {portfolioData.map((project) => (
       <ProjectCard project={project} />
     ))}
   </div>
 </section>
-
-<script>
-  // Прослушивание событий для открытия модального окна
-  document.addEventListener('DOMContentLoaded', () => {
-    // Логика будет обрабатываться через Alpine.js на уровне страницы
-  });
-</script>

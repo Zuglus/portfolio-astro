@@ -1,18 +1,21 @@
 import type { ImageMetadata } from 'astro';
 
-export interface PortfolioItem {
+export interface Slide {
+  image: ImageMetadata;
+  task?: string;
+  solution?: string;
+}
+
+export interface Project {
   id: string;
   title: string;
   description: string;
-  longDescription?: string; 
-  imageUrl: ImageMetadata; // Изменено для astro:assets
-  // или используйте string, если будете импортировать изображения иначе:
-  // imageUrl: string;
-  imageAlt: string; // Хорошая практика для доступности
-  tags?: string[];
-  liveLink?: string;
-  sourceLink?: string;
-  // Добавьте другие релевантные поля
+  audience: string;
+  slides: Slide[];
 }
 
-// Сюда же можно будет добавлять другие общие типы для вашего проекта.
+export interface PortfolioItem {
+  id: string;
+  image: ImageMetadata;
+  alt: string;
+}

@@ -8,7 +8,6 @@ interface Props {
 
 const { project } = Astro.props;
 
-// Стили карточки (из оригинального проекта)
 const cardContainerClass = 'bg-white/5 hover:shadow-lg rounded-[1.875rem] md:rounded-[1.25rem] transition-all hover:-translate-y-2 duration-300 cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 group';
 const cardImageClass = 'group-hover:scale-105 w-full transition-transform duration-300 object-cover';
 ---
@@ -16,15 +15,15 @@ const cardImageClass = 'group-hover:scale-105 w-full transition-transform durati
 <button
   type="button"
   class={cardContainerClass}
-  aria-label={`Открыть проект: ${project.imageAlt}`}
+  aria-label={`Открыть проект: ${project.alt}`}
   data-testid="portfolio-card"
   data-project-id={project.id} 
   x-data="{}" 
   x-on:click="$dispatch('open-modal', { projectId: $el.dataset.projectId })"
 >
   <ProgressiveImage 
-    src={project.imageUrl} 
-    alt={project.imageAlt} 
+    src={project.image} 
+    alt={project.alt} 
     className={cardImageClass}
     priority={false}
   />

@@ -3,7 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import PortfolioSection from '../components/PortfolioSection.astro';
 import Footer from '../components/Footer.astro';
-import { projects } from '../data/portfolio';
+import { portfolioData } from '../data/portfolio';
+import { projects } from '../data/projects';
 ---
 
 <Layout title="Полина Мигранова | Графический дизайнер">
@@ -11,27 +12,59 @@ import { projects } from '../data/portfolio';
     class="bg-primary text-white min-h-screen"
     x-data="{
       isModalOpen: false,
-      currentProject: {},
-      allProjects: [],
+      currentProject: null,
+      currentSlideIndex: 0,
       
       init() {
-        // Инициализация данных проектов
-        this.allProjects = window.portfolioProjects || [];
+        // Обработка клавиш
+        document.addEventListener('keydown', (e) => {
+          if (!this.isModalOpen) return;
+          
+          if (e.key === 'Escape') {
+            this.closeModal();
+          } else if (e.key === 'ArrowRight') {
+            this.nextSlide();
+          } else if (e.key === 'ArrowLeft') {
+            this.prevSlide();
+          }
+        });
       },
       
       openModal(projectId) {
-        const project = this.allProjects.find(p => p.id === projectId);
+        const project = window.portfolioProjects.find(p => p.id === projectId);
         if (project) {
           this.currentProject = project;
+          this.currentSlideIndex = 0;
           this.isModalOpen = true;
-          document.body.style.overflow = 'hidden'; // Блокируем прокрутку
+          document.body.style.overflow = 'hidden';
         }
       },
       
       closeModal() {
         this.isModalOpen = false;
-        this.currentProject = {};
-        document.body.style.overflow = ''; // Восстанавливаем прокрутку
+        this.currentProject = null;
+        this.currentSlideIndex = 0;
+        document.body.style.overflow = '';
+      },
+      
+      nextSlide() {
+        if (this.currentProject && this.currentProject.slides) {
+          const totalSlides = this.currentProject.slides.length;
+          this.currentSlideIndex = (this.currentSlideIndex + 1) % totalSlides;
+        }
+      },
+      
+      prevSlide() {
+        if (this.currentProject && this.currentProject.slides) {
+          const totalSlides = this.currentProject.slides.length;
+          this.currentSlideIndex = this.currentSlideIndex === 0 
+            ? totalSlides - 1 
+            : this.currentSlideIndex - 1;
+        }
+      },
+      
+      get currentSlide() {
+        return this.currentProject?.slides?.[this.currentSlideIndex] || null;
       }
     }"
     @open-modal="openModal($event.detail.projectId)"
@@ -50,7 +83,6 @@ import { projects } from '../data/portfolio';
       x-show="isModalOpen" 
       x-transition.opacity.duration.300ms
       @click.self="closeModal()" 
-      @keydown.escape.window="closeModal()"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" 
       style="display: none;"
     >
@@ -63,46 +95,71 @@ import { projects } from '../data/portfolio';
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
         @click.stop=""
-        class="relative w-full max-w-4xl mx-auto bg-primary border border-white/10 rounded-[1.875rem] md:rounded-[1.25rem] shadow-xl overflow-hidden"
+        class="relative w-full max-w-7xl mx-auto bg-primary border border-white/10 rounded-[1.875rem] md:rounded-[1.25rem] shadow-xl overflow-hidden"
       >
         <!-- Контент модального окна -->
         <div class="h-[90vh] overflow-y-auto modal-scrollbar">
           <div class="p-[3.75rem] md:p-[2.5rem]">
             <!-- Заголовок -->
-            <header class="space-y-[2.8125rem] md:space-y-[1.875rem] mb-8">
+            <header class="space-y-[2.8125rem] md:space-y-[1.875rem] mb-8" x-show="currentProject">
               <div>
                 <h3 
-                  x-text="currentProject.title || 'Загрузка...'"
+                  x-text="currentProject?.title || ''"
                   class="font-mv-skifer text-[4.6875rem] md:text-[3.125rem]"
                 ></h3>
                 <h4 
-                  x-text="currentProject.description || ''"
+                  x-text="currentProject?.description || ''"
                   class="mb-4 font-extralight text-[3.28125rem] md:text-2xl leading-normal"
+                  x-show="currentProject?.description"
                 ></h4>
+                <p 
+                  class="font-onest text-[3.28125rem] md:text-[1.25rem]"
+                  x-show="currentProject?.audience"
+                >
+                  <span class="font-semibold">Целевая аудитория: </span>
+                  <span class="opacity-80" x-text="currentProject?.audience || ''"></span>
+                </p>
               </div>
             </header>
 
-            <!-- Изображение -->
-            <div class="mb-8 rounded-[1.875rem] md:rounded-[1.25rem] overflow-hidden">
-              <img
-                x-bind:src="currentProject.imageUrl?.src || ''"
-                x-bind:alt="currentProject.imageAlt || ''"
-                class="w-full h-auto object-cover"
-                loading="lazy"
-              />
-            </div>
+            <!-- Слайдер -->
+            <div class="slider w-full max-w-[93.75rem] mx-auto overflow-hidden group relative" x-show="currentSlide">
+              <!-- Изображение слайда -->
+              <div class="overflow-hidden mb-6">
+                <img
+                  x-bind:src="currentSlide?.image?.src || ''"
+                  x-bind:alt="`${currentProject?.title || ''} - слайд ${currentSlideIndex + 1}`"
+                  class="w-full object-contain rounded-[1.25rem]"
+                  loading="lazy"
+                />
+              </div>
 
-            <!-- Описание -->
-            <div 
-              x-html="currentProject.longDescription || ''"
-              class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4 prose prose-invert max-w-none"
-            ></div>
+              <!-- Кнопки навигации -->
+              <div class="flex justify-center space-x-6 mb-6" x-show="currentProject?.slides?.length > 1">
+                <button
+                  @click="prevSlide()"
+                  class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer active:scale-95 transform md:w-[3rem] md:h-[3rem] md:text-5xl"
+                  aria-label="Предыдущий слайд"
+                >&larr;</button>
 
-            <!-- Теги -->
-            <div x-show="currentProject.tags && currentProject.tags.length" class="mt-8">
-              <template x-for="tag in currentProject.tags || []" :key="tag">
-                <span class="inline-block bg-secondary/20 text-secondary px-3 py-1 rounded-full text-sm mr-2 mb-2" x-text="tag"></span>
-              </template>
+                <button
+                  @click="nextSlide()"
+                  class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer active:scale-95 transform md:w-[3rem] md:h-[3rem] md:text-5xl"
+                  aria-label="Следующий слайд"
+                >&rarr;</button>
+              </div>
+
+              <!-- Описание слайда -->
+              <div class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4">
+                <p x-show="currentSlide?.task">
+                  <span class="font-semibold">Задача: </span>
+                  <span class="opacity-80" x-text="currentSlide?.task || ''"></span>
+                </p>
+                <p x-show="currentSlide?.solution">
+                  <span class="font-semibold">Решение: </span>
+                  <span class="opacity-80" x-text="currentSlide?.solution || ''"></span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -131,11 +188,6 @@ import { projects } from '../data/portfolio';
     </div>
   </main>
 </Layout>
-
-<script>
-  // Передаем данные проектов в глобальную область для Alpine.js
-  window.portfolioProjects = window.portfolioProjects || [];
-</script>
 
 <script define:vars={{ projects }}>
   // Передаем данные проектов в Alpine.js

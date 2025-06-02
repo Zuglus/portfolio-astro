@@ -1,71 +1,47 @@
 ---
 import { Image } from 'astro:assets';
 
-// Определяем интерфейс Props для компонента
-// Он описывает, какие атрибуты (пропсы) компонент ожидает получить
 interface Props {
-  src: ImageMetadata | string; // Источник изображения: ImageMetadata для локальных файлов, string для URL
-  alt: string; // Альтернативный текст для изображения
-  className?: string; // Необязательный CSS класс для дополнительной стилизации
-  priority?: boolean; // Флаг для приоритетной загрузки (eager loading)
-  width?: number; // Ширина изображения (важно для оптимизации Astro)
-  height?: number; // Высота изображения (важно для оптимизации Astro)
-  [key: string]: any; // Позволяет передавать любые другие HTML атрибуты
+  src: ImageMetadata | string;
+  alt: string;
+  className?: string;
+  priority?: boolean;
+  width?: number;
+  height?: number;
+  [key: string]: any;
 }
 
-// Получаем переданные пропсы. Astro.props содержит все атрибуты, переданные компоненту.
 const { 
   src, 
   alt,
-  className = '', // Если className не передан, используется пустая строка
-  priority = false, // Если priority не передан, по умолчанию false (lazy loading)
+  className = '',
+  priority = false,
   width,
   height,
-  ...rest // Собираем остальные атрибуты в объект rest (например, style, id и т.д.)
+  ...rest
 } = Astro.props;
 
-// Проверяем, является ли источник изображения удаленным (URL) или локальным.
-// Это нужно, чтобы использовать обычный тег <img> для URL и компонент <Image> Astro для локальных.
 const isRemote = typeof src === 'string' && src.startsWith('http');
 ---
 
-{/* 
-  Основной контейнер для изображения.
-  class:list позволяет удобно собирать классы.
-  {...rest} распространяет все остальные переданные атрибуты на этот div.
-*/}
 <div class:list={["relative w-full h-full overflow-hidden isolate", className]} {...rest}>
-  {/* Условный рендеринг: если изображение удаленное, используем <img> */}
   {isRemote ? (
     <img 
       src={src as string} 
       alt={alt}
-      class="w-full h-full object-cover" // Стили для заполнения контейнера и сохранения пропорций
-      loading={priority ? "eager" : "lazy"} // Атрибут для управления ленивой/приоритетной загрузкой
-      decoding="async" // Подсказка браузеру для асинхронного декодирования
+      class="w-full h-full object-cover"
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
     />
   ) : ( 
-    /* Если изображение локальное, используем компонент <Image> из astro:assets */
     <Image 
       src={src as ImageMetadata} 
       alt={alt}
       class="w-full h-full object-cover"
       loading={priority ? "eager" : "lazy"}
       decoding="async"
-      width={width}   // Явно указываем ширину
-      height={height} // Явно указываем высоту
-      // inferSize={!width || !height} // Можно использовать, если размеры не всегда известны, Astro попытается их определить
-      // Дополнительные атрибуты для оптимизации:
-      // format="webp" // Преобразовать в формат WebP
-      // quality={80} // Установить качество изображения (от 1 до 100)
-      // densities={[1, 2]} // Сгенерировать версии для разных плотностей экрана
-      // breakpoints={[640, 768, 1024]} // Для адаптивных изображений на разных размерах экрана
+      width={width}
+      height={height}
     />
   )}
-  {/* 
-    Место для возможного расширения: 
-    - Скелетон во время загрузки (можно реализовать с Alpine.js, отслеживая состояние загрузки)
-    - Отображение сообщения об ошибке, если изображение не загрузилось (также с Alpine.js)
-    Компонент <Image> Astro базово обрабатывает ошибки, но для кастомного UI может понадобиться Alpine.js.
-  */}
 </div>

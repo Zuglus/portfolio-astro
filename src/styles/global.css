@@ -51,7 +51,7 @@
   font-display: swap;
 }
 
-/* Основные стили */
+/* Базовые стили из оригинала */
 :root {
   font-size: clamp(4.27px, calc(100vw / 75), 16px);
   --color-primary: #04061B;
@@ -65,9 +65,11 @@ html {
 
 body {
   background-color: var(--color-primary);
+  margin: 0;
+  padding: 0;
 }
 
-/* Кастомный скроллбар для модального окна */
+/* Кастомный скроллбар */
 .modal-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--color-secondary) transparent;
@@ -90,7 +92,7 @@ body {
   background: #4A5568;
 }
 
-/* Утилитарные классы */
+/* Утилиты */
 .bg-primary {
   background-color: var(--color-primary);
 }
@@ -109,12 +111,8 @@ body {
 
 /* Анимации */
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes pulse-slow {
@@ -136,7 +134,6 @@ body {
   animation: pulse-slow 3s ease-in-out infinite;
 }
 
-/* Responsive изображения */
 .object-cover {
   object-fit: cover;
   width: 100%;
