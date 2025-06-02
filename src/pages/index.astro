@@ -1,59 +1,143 @@
---- 
+---
 import Layout from '../layouts/Layout.astro';
-// import HeroSection from '../components/HeroSection.astro'; // Удалено
-// import AboutSection from '../components/AboutSection.astro'; // Удалено
+import Header from '../components/Header.astro';
 import PortfolioSection from '../components/PortfolioSection.astro';
-// import ContactSection from '../components/ContactSection.astro'; // Удалено
 import Footer from '../components/Footer.astro';
-import allProjectsData from '../data/projectsData'; // <--- ИМПОРТИРУЙТЕ ДАННЫЕ ЗДЕСЬ
-import type { PortfolioItem } from '../types'; // Убедитесь, что тип импортирован
-
-// УДАЛИТЕ СТАРЫЙ allProjectsData, если он был здесь
-// const allProjectsData: PortfolioItem[] = [
-//   // ...старые данные-заглушки...
-// ];
+import { projects } from '../data/portfolio';
 ---
 
-<Layout title="Мое Портфолио">
-  <main x-data="{
+<Layout title="Полина Мигранова | Графический дизайнер">
+  <main 
+    class="bg-primary text-white min-h-screen"
+    x-data="{
       isModalOpen: false,
       currentProject: {},
-      allProjects: JSON.parse(JSON.stringify(allProjectsData)), // Передаем данные в Alpine
+      allProjects: [],
+      
+      init() {
+        // Инициализация данных проектов
+        this.allProjects = window.portfolioProjects || [];
+      },
+      
       openModal(projectId) {
         const project = this.allProjects.find(p => p.id === projectId);
         if (project) {
           this.currentProject = project;
           this.isModalOpen = true;
+          document.body.style.overflow = 'hidden'; // Блокируем прокрутку
         }
       },
+      
       closeModal() {
         this.isModalOpen = false;
         this.currentProject = {};
+        document.body.style.overflow = ''; // Восстанавливаем прокрутку
       }
-    }">
-    {/* <HeroSection /> */}{/* Удалено */}
-    {/* <AboutSection /> */}{/* Удалено */}
-    <PortfolioSection portfolioData={allProjectsData} />
-    {/* <ContactSection /> */}{/* Удалено */}
+    }"
+    @open-modal="openModal($event.detail.projectId)"
+  >
+    <!-- Шапка сайта -->
+    <Header />
+    
+    <!-- Секция портфолио -->
+    <PortfolioSection />
+    
+    <!-- Подвал -->
+    <Footer />
 
-    {/* Modal Placeholder */}
-    <div x-show="isModalOpen" @click.away="closeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
-      <div class="bg-white p-8 rounded-lg shadow-xl max-w-2xl w-full">
-        <button @click="closeModal" class="absolute top-4 right-4 text-gray-700 hover:text-gray-900">&times; Close</button>
-        <h2 class="text-2xl font-bold mb-4" x-text="currentProject.title"></h2>
-        <img :src="currentProject.imageUrl?.src" :alt="currentProject.imageAlt || currentProject.title" class="w-full h-auto object-cover mb-4" />
-        <p class="mb-2" x-text="currentProject.description"></p>
-        <p class="text-sm text-gray-600 mb-4" x-html="currentProject.longDescription"></p>
-        <div class="mt-4">
-          <template x-if="currentProject.liveLink">
-            <a :href="currentProject.liveLink" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline mr-4">Live Demo</a>
-          </template>
-          <template x-if="currentProject.sourceLink">
-            <a :href="currentProject.sourceLink" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">Source Code</a>
-          </template>
+    <!-- Модальное окно -->
+    <div 
+      x-show="isModalOpen" 
+      x-transition.opacity.duration.300ms
+      @click.self="closeModal()" 
+      @keydown.escape.window="closeModal()"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" 
+      style="display: none;"
+    >
+      <div 
+        x-show="isModalOpen"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+        @click.stop=""
+        class="relative w-full max-w-4xl mx-auto bg-primary border border-white/10 rounded-[1.875rem] md:rounded-[1.25rem] shadow-xl overflow-hidden"
+      >
+        <!-- Контент модального окна -->
+        <div class="h-[90vh] overflow-y-auto modal-scrollbar">
+          <div class="p-[3.75rem] md:p-[2.5rem]">
+            <!-- Заголовок -->
+            <header class="space-y-[2.8125rem] md:space-y-[1.875rem] mb-8">
+              <div>
+                <h3 
+                  x-text="currentProject.title || 'Загрузка...'"
+                  class="font-mv-skifer text-[4.6875rem] md:text-[3.125rem]"
+                ></h3>
+                <h4 
+                  x-text="currentProject.description || ''"
+                  class="mb-4 font-extralight text-[3.28125rem] md:text-2xl leading-normal"
+                ></h4>
+              </div>
+            </header>
+
+            <!-- Изображение -->
+            <div class="mb-8 rounded-[1.875rem] md:rounded-[1.25rem] overflow-hidden">
+              <img
+                x-bind:src="currentProject.imageUrl?.src || ''"
+                x-bind:alt="currentProject.imageAlt || ''"
+                class="w-full h-auto object-cover"
+                loading="lazy"
+              />
+            </div>
+
+            <!-- Описание -->
+            <div 
+              x-html="currentProject.longDescription || ''"
+              class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4 prose prose-invert max-w-none"
+            ></div>
+
+            <!-- Теги -->
+            <div x-show="currentProject.tags && currentProject.tags.length" class="mt-8">
+              <template x-for="tag in currentProject.tags || []" :key="tag">
+                <span class="inline-block bg-secondary/20 text-secondary px-3 py-1 rounded-full text-sm mr-2 mb-2" x-text="tag"></span>
+              </template>
+            </div>
+          </div>
         </div>
+
+        <!-- Кнопка закрытия -->
+        <button
+          @click="closeModal()"
+          class="absolute top-6 right-6 p-4 md:p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white/50 z-50 group transition-all duration-300 ease-in-out shadow-lg"
+          aria-label="Закрыть"
+        >
+          <svg
+            class="w-12 h-12 md:w-6 md:h-6 text-white/80 group-hover:text-white transition-colors duration-300 ease-in-out"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </div>
     </div>
   </main>
-  <Footer />
 </Layout>
+
+<script>
+  // Передаем данные проектов в глобальную область для Alpine.js
+  window.portfolioProjects = window.portfolioProjects || [];
+</script>
+
+<script define:vars={{ projects }}>
+  // Передаем данные проектов в Alpine.js
+  window.portfolioProjects = projects;
+</script>

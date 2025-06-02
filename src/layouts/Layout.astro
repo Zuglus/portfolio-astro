@@ -1,23 +1,46 @@
 ---
 import '../styles/global.css';
+
 export interface Props {
     title: string;
+    description?: string;
 }
-const { title } = Astro.props;
+
+const { 
+  title = "Полина Мигранова | Графический дизайнер",
+  description = "Портфолио графического дизайнера Полины Миграновой. Дизайнер образовательных и научно-просветительских проектов, графический дизайнер, дизайнер научно-просветительских презентаций."
+} = Astro.props;
 ---
+
 <!doctype html>
-<html lang="ru">
+<html lang="ru" class="bg-primary">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Astro description" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Полина Мигранова" />
+    <meta name="keywords" content="графический дизайнер, дизайн, дизайнер презентаций, Полина Мигранова, заказать презентацию" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Preload критических ресурсов -->
+    <link rel="preload" href="/src/assets/fonts/MV-SKIFER.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/src/assets/fonts/Onest-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    {/* VVV Добавьте эту строку для Alpine.js VVV */}
-    <script is:inline src="/src/scripts/main.js"></script> 
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
-  <body>
+  <body class="bg-primary text-white font-onest">
     <slot />
   </body>
 </html>
