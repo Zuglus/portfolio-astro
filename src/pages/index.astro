@@ -1,0 +1,59 @@
+--- 
+import Layout from '../layouts/Layout.astro';
+// import HeroSection from '../components/HeroSection.astro'; // Удалено
+// import AboutSection from '../components/AboutSection.astro'; // Удалено
+import PortfolioSection from '../components/PortfolioSection.astro';
+// import ContactSection from '../components/ContactSection.astro'; // Удалено
+import Footer from '../components/Footer.astro';
+import allProjectsData from '../data/projectsData'; // <--- ИМПОРТИРУЙТЕ ДАННЫЕ ЗДЕСЬ
+import type { PortfolioItem } from '../types'; // Убедитесь, что тип импортирован
+
+// УДАЛИТЕ СТАРЫЙ allProjectsData, если он был здесь
+// const allProjectsData: PortfolioItem[] = [
+//   // ...старые данные-заглушки...
+// ];
+---
+
+<Layout title="Мое Портфолио">
+  <main x-data="{
+      isModalOpen: false,
+      currentProject: {},
+      allProjects: JSON.parse(JSON.stringify(allProjectsData)), // Передаем данные в Alpine
+      openModal(projectId) {
+        const project = this.allProjects.find(p => p.id === projectId);
+        if (project) {
+          this.currentProject = project;
+          this.isModalOpen = true;
+        }
+      },
+      closeModal() {
+        this.isModalOpen = false;
+        this.currentProject = {};
+      }
+    }">
+    {/* <HeroSection /> */}{/* Удалено */}
+    {/* <AboutSection /> */}{/* Удалено */}
+    <PortfolioSection portfolioData={allProjectsData} />
+    {/* <ContactSection /> */}{/* Удалено */}
+
+    {/* Modal Placeholder */}
+    <div x-show="isModalOpen" @click.away="closeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
+      <div class="bg-white p-8 rounded-lg shadow-xl max-w-2xl w-full">
+        <button @click="closeModal" class="absolute top-4 right-4 text-gray-700 hover:text-gray-900">&times; Close</button>
+        <h2 class="text-2xl font-bold mb-4" x-text="currentProject.title"></h2>
+        <img :src="currentProject.imageUrl?.src" :alt="currentProject.imageAlt || currentProject.title" class="w-full h-auto object-cover mb-4" />
+        <p class="mb-2" x-text="currentProject.description"></p>
+        <p class="text-sm text-gray-600 mb-4" x-html="currentProject.longDescription"></p>
+        <div class="mt-4">
+          <template x-if="currentProject.liveLink">
+            <a :href="currentProject.liveLink" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline mr-4">Live Demo</a>
+          </template>
+          <template x-if="currentProject.sourceLink">
+            <a :href="currentProject.sourceLink" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">Source Code</a>
+          </template>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

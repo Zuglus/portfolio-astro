@@ -1,0 +1,60 @@
+---
+import ProjectCard from './ProjectCard.astro';
+import type { PortfolioItem } from '../types'; // Убедитесь, что путь к типам правильный
+import { portfolioData, projects } from '@data/portfolio'; // Пример импорта данных, адаптируйте путь
+import DecorativeImage from '@assets/images/portfolio-decorative.svg'; // Адаптируйте путь к изображению
+import { Image } from 'astro:assets';
+
+// Предполагается, что portfolioData и projects импортируются и имеют нужную структуру.
+// Если данные приходят как props, измените это соответствующим образом.
+
+const title = portfolioData.title || 'Портфолио';
+const description = portfolioData.description || 'Описание не указано.';
+const portfolioItems: PortfolioItem[] = projects || [];
+
+// Стили из styles.ts (предполагается, что они будут строками Tailwind классов)
+const sectionClass = 'py-16 md:py-24 bg-gradient-to-b from-transparent to-gray-900/50';
+const containerClass = 'container mx-auto px-4';
+const headerClass = 'text-center mb-12 md:mb-16';
+const titleClass = 'text-4xl md:text-5xl font-bold mb-4 text-white';
+const descriptionClass = 'text-lg md:text-xl text-gray-300 max-w-2xl mx-auto';
+const gridClass = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10';
+const decorativeImageContainerClass = 'absolute top-0 left-0 w-full h-full overflow-hidden -z-10';
+const decorativeImageClass = 'absolute -top-1/4 -left-1/4 w-[150%] h-[150%] object-cover opacity-10';
+---
+<section class={sectionClass} id="portfolio">
+  <div class={containerClass}>
+    <header class={headerClass}>
+      <h2 class={titleClass}>{title}</h2>
+      <p class={descriptionClass}>{description}</p>
+    </header>
+
+    {portfolioItems.length > 0 ? (
+      <div class={gridClass}>
+        {portfolioItems.map(project => (
+          <ProjectCard project={project} />
+        ))}
+      </div>
+    ) : (
+      <p class="text-center text-gray-400">Проекты пока не добавлены.</p>
+    )}
+  </div>
+
+  <div class={decorativeImageContainerClass} aria-hidden="true">
+    <Image 
+      src={DecorativeImage} 
+      alt="Декоративное фоновое изображение" 
+      class={decorativeImageClass} 
+      loading="lazy"
+      decoding="async"
+      quality={"mid"} 
+    />
+  </div>
+</section>
+
+<script>
+  // Логика для открытия модального окна будет обрабатываться на уровне страницы (например, index.astro)
+  // с использованием Alpine.js, прослушивая событие 'open-modal',
+  // которое отправляется из ProjectCard.astro.
+  // Пример такой логики будет предоставлен для index.astro.
+</script>

@@ -1,0 +1,55 @@
+---
+import type { PortfolioItem } from '../types';
+import ProgressiveImage from './ProgressiveImage.astro';
+
+// Определяем интерфейс Props для ProjectCard
+interface Props {
+  project: PortfolioItem; // Ожидаем объект project с данными карточки
+  // Обработчик клика (onClick) будет реализован через Alpine.js на странице,
+  // где используется эта карточка, путем прослушивания кастомного события.
+}
+
+// Получаем пропс project
+const { project } = Astro.props;
+
+// Классы Tailwind CSS для стилизации карточки.
+// Они взяты из вашего styles.ts. Если CARD_STYLES импортируются как JS-объект,
+// их можно было бы использовать так: const cardContainerClass = CARD_STYLES.CONTAINER;
+const cardContainerClass = 'bg-white/5 hover:shadow-lg rounded-[1.875rem] md:rounded-[1.25rem] transition-all hover:-translate-y-2 duration-300 cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 group';
+const cardImageClass = 'group-hover:scale-105 w-full transition-transform duration-300 object-cover';
+---
+{/* 
+  Корневой элемент карточки - кнопка.
+  data-project-id используется для передачи ID проекта в событие Alpine.js.
+  x-data="{}" инициализирует Alpine.js на этом элементе.
+  x-on:click="$dispatch('open-modal', { projectId: project.id })" 
+    - при клике отправляет кастомное событие 'open-modal' с ID проекта.
+    - это событие будет прослушиваться на родительском уровне (например, на странице index.astro)
+      для открытия модального окна.
+*/}
+<button
+  type="button"
+  class={cardContainerClass}
+  aria-label={`Открыть проект: ${project.alt}`}
+  data-testid="portfolio-card"
+  data-project-id={project.id} 
+  x-data="{}" 
+  x-on:click="$dispatch('open-modal', { projectId: project.id })"
+>
+  {/* Используем наш компонент ProgressiveImage для отображения картинки проекта */}
+  <ProgressiveImage 
+    src={project.image} 
+    alt={project.alt} 
+    className={cardImageClass}
+    width={project.imageWidth}    // Передаем размеры для оптимизации Astro
+    height={project.imageHeight}
+    priority={false} // Можно установить в true для первых нескольких карточек, если они видны сразу
+  />
+</button>
+
+<script>
+  // В этой секции можно было бы добавить JavaScript, выполняемый на клиенте.
+  // Но для данной карточки вся интерактивность реализуется через Alpine.js атрибуты в разметке.
+  // Если бы CARD_STYLES были сложным объектом и требовали JS для применения, 
+  // это можно было бы сделать в секции --- выше.
+</script>
