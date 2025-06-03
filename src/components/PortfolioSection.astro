@@ -3,15 +3,47 @@ import ProjectCard from './ProjectCard.astro';
 import { portfolioData } from '../data/portfolio';
 import ringsImage from '../assets/images/rings_with_circle.svg';
 
-const sectionClass = 'relative mx-auto px-4 py-[7.75rem] max-w-[75rem]';
+const sectionClass = 'relative mx-auto px-4 py-[7.75rem] max-w-[75rem] section-reveal';
 const headerWrapperClass = 'relative mb-[4.1875rem] text-center z-0';
 const decorationClass = 'absolute top-[-2.875rem] md:top-[-1.875rem] left-[50%] w-[25.875rem] md:w-[17.25rem] h-[28.0125rem] md:h-[18.675rem] transform -translate-x-[20.6rem] md:-translate-x-[13.625rem] z-0';
 const decorationImageClass = 'w-full h-full object-contain';
 const titleClass = 'font-mv-skifer text-[4.6875rem] md:text-[3.125rem] leading-[1.24] tracking-[0.01em] relative z-10';
-const gridClass = 'relative z-10 gap-[2.71875rem] md:gap-[1.8125rem] grid grid-cols-1 md:grid-cols-2 mx-auto max-w-[70.65625rem] md:max-w-full';
+const gridClass = 'relative z-10 gap-[2.71875rem] md:gap-[1.8125rem] grid grid-cols-1 md:grid-cols-2 mx-auto max-w-[70.65625rem] md:max-w-full portfolio-grid';
 ---
 
-<section class={sectionClass} id="portfolio">
+<section 
+  class={sectionClass} 
+  id="portfolio"
+  x-data="{
+    sectionRevealed: false,
+    
+    init() {
+      this.setupSectionReveal();
+    },
+    
+    setupSectionReveal() {
+      if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const entry = entries[0];
+          if (entry.isIntersecting && !this.sectionRevealed) {
+            this.sectionRevealed = true;
+            this.$el.classList.add('revealed');
+            observer.unobserve(this.$el);
+          }
+        }, {
+          threshold: 0.2,
+          rootMargin: '0px 0px -10% 0px'
+        });
+        
+        observer.observe(this.$el);
+      } else {
+        // Fallback
+        this.sectionRevealed = true;
+        this.$el.classList.add('revealed');
+      }
+    }
+  }"
+>
   <div class={headerWrapperClass}>
     <div class={decorationClass}>
       <img 
@@ -27,8 +59,13 @@ const gridClass = 'relative z-10 gap-[2.71875rem] md:gap-[1.8125rem] grid grid-c
   </div>
 
   <div class={gridClass}>
-    {portfolioData.map((project) => (
-      <ProjectCard project={project} />
+    {portfolioData.map((project, index) => (
+      <ProjectCard 
+        project={project} 
+        index={index}
+        animationType="reveal-up"
+        staggerDelay={index * 150}
+      />
     ))}
   </div>
 </section>

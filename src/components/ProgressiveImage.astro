@@ -11,6 +11,12 @@ interface Props {
   height?: number;
   /** Показывать ли скелетон во время загрузки */
   showSkeleton?: boolean;
+  /** Тип анимации появления */
+  animationType?: 'fade-in' | 'blur-to-sharp' | 'reveal-up' | 'scale-in';
+  /** Использовать ли Intersection Observer */
+  useIntersectionObserver?: boolean;
+  /** Задержка анимации (для stagger эффектов) */
+  animationDelay?: number;
   [key: string]: any;
 }
 
@@ -22,49 +28,105 @@ const {
   width,
   height,
   showSkeleton = true,
+  animationType = 'fade-in',
+  useIntersectionObserver = true,
+  animationDelay = 0,
   ...rest
 } = Astro.props;
 
 const isRemote = typeof src === 'string' && src.startsWith('http');
-
-// Генерируем уникальный ID для этого изображения
 const imageId = `img_${Math.random().toString(36).substr(2, 9)}`;
+const animationClass = `animate-${animationType}`;
 ---
 
 <div 
-  class:list={["relative w-full h-full overflow-hidden isolate", className]} 
+  class:list={["relative w-full h-full overflow-hidden isolate image-container", className]} 
   {...rest}
   x-data={`{
     imageLoaded: false,
     imageError: false,
+    isVisible: false,
+    animationStarted: false,
     
     init() {
-      // Отслеживаем загрузку изображения
+      this.$el.style.setProperty('--animation-delay', '${animationDelay}ms');
+      this.$el.classList.add('${animationClass}-container');
+      
+      ${useIntersectionObserver ? `
+      this.setupIntersectionObserver();
+      ` : `
+      this.isVisible = true;
+      this.startAnimation();
+      `}
+      
       this.$nextTick(() => {
-        const img = this.$el.querySelector('img');
-        if (img) {
-          if (img.complete && img.naturalHeight !== 0) {
-            this.imageLoaded = true;
-          } else {
-            img.addEventListener('load', () => {
-              this.imageLoaded = true;
-            });
-            img.addEventListener('error', () => {
-              this.imageError = true;
-            });
-          }
-        }
+        this.setupImageHandlers();
       });
+    },
+    
+    setupIntersectionObserver() {
+      if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const entry = entries[0];
+          if (entry.isIntersecting && !this.isVisible) {
+            this.isVisible = true;
+            this.startAnimation();
+            observer.unobserve(this.$el);
+          }
+        }, {
+          threshold: 0.1,
+          rootMargin: '50px 0px'
+        });
+        
+        observer.observe(this.$el);
+      } else {
+        this.isVisible = true;
+        this.startAnimation();
+      }
+    },
+    
+    setupImageHandlers() {
+      const img = this.$el.querySelector('img');
+      if (img) {
+        if (img.complete && img.naturalHeight !== 0) {
+          this.onImageLoad();
+        } else {
+          img.addEventListener('load', () => this.onImageLoad());
+          img.addEventListener('error', () => this.onImageError());
+        }
+      }
+    },
+    
+    startAnimation() {
+      if (this.animationStarted) return;
+      this.animationStarted = true;
+      
+      setTimeout(() => {
+        this.$el.classList.add('${animationClass}-ready');
+      }, ${animationDelay});
+    },
+    
+    onImageLoad() {
+      this.imageLoaded = true;
+      
+      if (this.isVisible) {
+        this.$el.classList.add('${animationClass}-loaded');
+      }
+    },
+    
+    onImageError() {
+      this.imageError = true;
+      this.$el.classList.add('${animationClass}-error');
     }
   }`}
 >
-  <!-- Скелетон (показывается пока изображение не загружено) -->
+  <!-- Скелетон -->
   {showSkeleton && (
     <div 
       x-show="!imageLoaded && !imageError"
-      x-transition:leave="transition-opacity duration-300"
-      x-transition:leave-start="opacity-100"
-      x-transition:leave-end="opacity-0"
+      x-transition:leave="transition-all duration-500 ease-out"
+      x-transition:leave-start="opacity-100 scale-100"
+      x-transition:leave-end="opacity-0 scale-95"
       class="absolute inset-0 z-10"
     >
       <SkeletonLoader 
@@ -80,16 +142,13 @@ const imageId = `img_${Math.random().toString(36).substr(2, 9)}`;
   <!-- Изображение -->
   <div
     x-show="imageLoaded"
-    x-transition:enter="transition-opacity duration-500 ease-out"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    class="w-full h-full"
+    class="w-full h-full image-wrapper"
   >
     {isRemote ? (
       <img 
         src={src as string} 
         alt={alt}
-        class="w-full h-full object-cover"
+        class="w-full h-full object-cover image-element"
         loading={priority ? "eager" : "lazy"}
         decoding="async"
       />
@@ -97,7 +156,7 @@ const imageId = `img_${Math.random().toString(36).substr(2, 9)}`;
       <Image 
         src={src as ImageMetadata} 
         alt={alt}
-        class="w-full h-full object-cover"
+        class="w-full h-full object-cover image-element"
         loading={priority ? "eager" : "lazy"}
         decoding="async"
         width={width}
@@ -106,13 +165,13 @@ const imageId = `img_${Math.random().toString(36).substr(2, 9)}`;
     )}
   </div>
 
-  <!-- Заглушка для ошибки загрузки -->
+  <!-- Ошибка загрузки -->
   <div
     x-show="imageError"
     x-transition:enter="transition-opacity duration-300"
     x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100"
-    class="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400"
+    class="absolute inset-0 flex items-center justify-center bg-gray-100/10 text-gray-400"
   >
     <div class="text-center">
       <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">

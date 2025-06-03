@@ -1,7 +1,7 @@
+@import "./animations.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 /* Шрифты */
 @font-face {
   font-family: 'MV-SKIFER';
