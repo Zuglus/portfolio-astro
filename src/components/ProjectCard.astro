@@ -5,7 +5,7 @@ import ProgressiveImage from './ProgressiveImage.astro';
 interface Props {
   project: PortfolioItem;
   index?: number;
-  animationType?: string;
+  animationType?: "reveal-up" | "fade-in" | "blur-to-sharp" | "scale-in";
   staggerDelay?: number;
 }
 
