@@ -1,42 +1,31 @@
 ---
 import type { PortfolioItem } from '../types';
-import ProgressiveImage from './ProgressiveImage.astro';
 
 interface Props {
   project: PortfolioItem;
   index?: number;
-  animationType?: "reveal-up" | "fade-in" | "blur-to-sharp" | "scale-in";
-  staggerDelay?: number;
 }
 
-const { 
-  project, 
-  index = 0,
-  animationType = 'reveal-up',
-  staggerDelay = 0
-} = Astro.props;
-
-const cardContainerClass = 'bg-white/5 hover:shadow-lg rounded-[1.875rem] md:rounded-[1.25rem] transition-all hover:-translate-y-2 duration-300 cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 group portfolio-card';
-const cardImageClass = 'group-hover:scale-105 w-full transition-transform duration-300 object-cover';
+const { project, index = 0 } = Astro.props;
 ---
 
 <button
   type="button"
-  class={cardContainerClass}
+  class="bg-white/5 hover:shadow-lg rounded-[1.875rem] md:rounded-[1.25rem] transition-all hover:-translate-y-2 duration-300 cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 group portfolio-card w-full"
   aria-label={`Открыть проект: ${project.alt}`}
   data-testid="portfolio-card"
-  data-project-id={project.id} 
-  x-data="{}" 
-  x-on:click="$dispatch('open-modal', { projectId: $el.dataset.projectId })"
-  style={`--animation-delay: ${staggerDelay}ms;`}
+  data-project-id={project.id}
+  onclick={`document.dispatchEvent(new CustomEvent('open-modal', { detail: { projectId: '${project.id}' } }));`}
 >
-  <ProgressiveImage 
-    src={project.image} 
-    alt={project.alt} 
-    className={cardImageClass}
-    priority={index < 2}
-    animationType={animationType}
-    useIntersectionObserver={true}
-    animationDelay={staggerDelay}
-  />
+  <div class="w-full group-hover:scale-105 transition-transform duration-300">
+    <img 
+      src={project.image.src} 
+      alt={project.alt}
+      class="w-full h-full object-cover"
+      loading={index < 2 ? "eager" : "lazy"}
+      decoding="async"
+      width={project.image.width}
+      height={project.image.height}
+    />
+  </div>
 </button>

@@ -47,41 +47,76 @@ const animationClass = `animate-${animationType}`;
     imageError: false,
     isVisible: false,
     animationStarted: false,
+    observer: null,
+    isInitialized: false,
     
     init() {
       this.$el.style.setProperty('--animation-delay', '${animationDelay}ms');
       this.$el.classList.add('${animationClass}-container');
       
+      // Детерминированная инициализация
+      this.$nextTick(() => {
+        this.initializeComponent();
+      });
+      
+      // Дополнительная проверка через setTimeout
+      setTimeout(() => {
+        if (!this.isInitialized) {
+          this.forceInitialize();
+        }
+      }, 200);
+    },
+    
+    initializeComponent() {
+      if (this.isInitialized) return;
+      this.isInitialized = true;
+      
       ${useIntersectionObserver ? `
-      this.setupIntersectionObserver();
+      // Проверяем, виден ли элемент уже сейчас
+      const rect = this.$el.getBoundingClientRect();
+      const isCurrentlyVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      
+      if (isCurrentlyVisible) {
+        this.makeVisible();
+      } else {
+        this.setupIntersectionObserver();
+      }
       ` : `
-      this.isVisible = true;
-      this.startAnimation();
+      this.makeVisible();
       `}
       
-      this.$nextTick(() => {
-        this.setupImageHandlers();
-      });
+      this.setupImageHandlers();
+    },
+    
+    forceInitialize() {
+      console.log('Принудительная инициализация изображения');
+      this.makeVisible();
+      this.setupImageHandlers();
+    },
+    
+    makeVisible() {
+      if (this.isVisible) return;
+      this.isVisible = true;
+      this.startAnimation();
     },
     
     setupIntersectionObserver() {
       if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
+        this.observer = new IntersectionObserver((entries) => {
           const entry = entries[0];
           if (entry.isIntersecting && !this.isVisible) {
-            this.isVisible = true;
-            this.startAnimation();
-            observer.unobserve(this.$el);
+            this.makeVisible();
+            this.observer.disconnect();
+            this.observer = null;
           }
         }, {
-          threshold: 0.1,
-          rootMargin: '50px 0px'
+          threshold: 0.01, // Очень маленький threshold
+          rootMargin: '100px 0px' // Большой rootMargin для раннего срабатывания
         });
         
-        observer.observe(this.$el);
+        this.observer.observe(this.$el);
       } else {
-        this.isVisible = true;
-        this.startAnimation();
+        this.makeVisible();
       }
     },
     
@@ -117,8 +152,17 @@ const animationClass = `animate-${animationType}`;
     onImageError() {
       this.imageError = true;
       this.$el.classList.add('${animationClass}-error');
+    },
+    
+    // Cleanup
+    destroy() {
+      if (this.observer) {
+        this.observer.disconnect();
+        this.observer = null;
+      }
     }
   }`}
+  x-on:beforedestroy="destroy()"
 >
   <!-- Скелетон -->
   {showSkeleton && (
