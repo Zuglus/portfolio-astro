@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import SkeletonLoader from './ui/SkeletonLoader.astro';
 
 interface Props {
   src: ImageMetadata | string;
@@ -8,6 +9,8 @@ interface Props {
   priority?: boolean;
   width?: number;
   height?: number;
+  /** Показывать ли скелетон во время загрузки */
+  showSkeleton?: boolean;
   [key: string]: any;
 }
 
@@ -18,49 +21,104 @@ const {
   priority = false,
   width,
   height,
+  showSkeleton = true,
   ...rest
 } = Astro.props;
 
-
-// Генерация уникального ID для изображения
-const imageId = typeof src === 'string' 
-  ? btoa(src + (width || '') + (height || '')).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16)
-  : btoa((src.src || '') + (width || '') + (height || '')).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
-
 const isRemote = typeof src === 'string' && src.startsWith('http');
+
+// Генерируем уникальный ID для этого изображения
+const imageId = `img_${Math.random().toString(36).substr(2, 9)}`;
 ---
 
 <div 
   class:list={["relative w-full h-full overflow-hidden isolate", className]} 
-  x-data="{ imageId: $el.dataset.imageId }"
-  x-init="$root.setImageState(imageId, 'idle')"
-  :data-image-state="$root.getImageState(imageId)"
-  data-image-id={imageId}
   {...rest}
+  x-data={`{
+    imageLoaded: false,
+    imageError: false,
+    
+    init() {
+      // Отслеживаем загрузку изображения
+      this.$nextTick(() => {
+        const img = this.$el.querySelector('img');
+        if (img) {
+          if (img.complete && img.naturalHeight !== 0) {
+            this.imageLoaded = true;
+          } else {
+            img.addEventListener('load', () => {
+              this.imageLoaded = true;
+            });
+            img.addEventListener('error', () => {
+              this.imageError = true;
+            });
+          }
+        }
+      });
+    }
+  }`}
 >
-  {isRemote ? (
-    <img 
-      src={src as string} 
-      alt={alt}
-      class="w-full h-full object-cover"
-      loading={priority ? "eager" : "lazy"}
-      decoding="async"
-      x-on:loadstart="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'loading')"
-      x-on:load="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'loaded')"
-      x-on:error="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'error')"
-    />
-  ) : ( 
-    <Image 
-      src={src as ImageMetadata} 
-      alt={alt}
-      class="w-full h-full object-cover"
-      loading={priority ? "eager" : "lazy"}
-      decoding="async"
-      width={width}
-      height={height}
-      x-on:loadstart="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'loading')"
-      x-on:load="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'loaded')"
-      x-on:error="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'error')"
-    />
+  <!-- Скелетон (показывается пока изображение не загружено) -->
+  {showSkeleton && (
+    <div 
+      x-show="!imageLoaded && !imageError"
+      x-transition:leave="transition-opacity duration-300"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave-end="opacity-0"
+      class="absolute inset-0 z-10"
+    >
+      <SkeletonLoader 
+        width="100%" 
+        height="100%" 
+        variant="rectangular"
+        shimmerIntensity="subtle"
+        duration={1.5}
+      />
+    </div>
   )}
+
+  <!-- Изображение -->
+  <div
+    x-show="imageLoaded"
+    x-transition:enter="transition-opacity duration-500 ease-out"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    class="w-full h-full"
+  >
+    {isRemote ? (
+      <img 
+        src={src as string} 
+        alt={alt}
+        class="w-full h-full object-cover"
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+      />
+    ) : ( 
+      <Image 
+        src={src as ImageMetadata} 
+        alt={alt}
+        class="w-full h-full object-cover"
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        width={width}
+        height={height}
+      />
+    )}
+  </div>
+
+  <!-- Заглушка для ошибки загрузки -->
+  <div
+    x-show="imageError"
+    x-transition:enter="transition-opacity duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    class="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400"
+  >
+    <div class="text-center">
+      <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+      </svg>
+      <p class="text-sm">Изображение недоступно</p>
+    </div>
+  </div>
 </div>

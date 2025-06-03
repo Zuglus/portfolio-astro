@@ -1,0 +1,39 @@
+---
+interface Props {
+  /** Количество скелетонов */
+  count?: number;
+  /** Задержка между анимациями */
+  stagger?: number;
+  /** Общие пропсы для всех скелетонов */
+  skeletonProps?: Record<string, any>;
+  /** Направление stagger эффекта */
+  direction?: 'row' | 'column';
+  /** Кастомный класс контейнера */
+  containerClass?: string;
+}
+
+const {
+  count = 3,
+  stagger = 0.1,
+  skeletonProps = {},
+  direction = 'column',
+  containerClass = '',
+} = Astro.props;
+
+import SkeletonLoader from './SkeletonLoader.astro';
+
+const containerClasses = {
+  row: 'flex flex-row gap-4',
+  column: 'flex flex-col gap-2',
+};
+---
+
+<div class:list={[containerClasses[direction], containerClass]}>
+  {Array.from({ length: count }, (_, index) => (
+    <SkeletonLoader 
+      {...skeletonProps}
+      delay={index * stagger}
+      key={index}
+    />
+  ))}
+</div>
