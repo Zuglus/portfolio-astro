@@ -21,10 +21,23 @@ const {
   ...rest
 } = Astro.props;
 
+
+// Генерация уникального ID для изображения
+const imageId = typeof src === 'string' 
+  ? btoa(src + (width || '') + (height || '')).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16)
+  : btoa((src.src || '') + (width || '') + (height || '')).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+
 const isRemote = typeof src === 'string' && src.startsWith('http');
 ---
 
-<div class:list={["relative w-full h-full overflow-hidden isolate", className]} {...rest}>
+<div 
+  class:list={["relative w-full h-full overflow-hidden isolate", className]} 
+  x-data="{ imageId: $el.dataset.imageId }"
+  x-init="$root.setImageState(imageId, 'idle')"
+  :data-image-state="$root.getImageState(imageId)"
+  data-image-id={imageId}
+  {...rest}
+>
   {isRemote ? (
     <img 
       src={src as string} 
@@ -32,6 +45,9 @@ const isRemote = typeof src === 'string' && src.startsWith('http');
       class="w-full h-full object-cover"
       loading={priority ? "eager" : "lazy"}
       decoding="async"
+      x-on:loadstart="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'loading')"
+      x-on:load="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'loaded')"
+      x-on:error="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'error')"
     />
   ) : ( 
     <Image 
@@ -42,6 +58,9 @@ const isRemote = typeof src === 'string' && src.startsWith('http');
       decoding="async"
       width={width}
       height={height}
+      x-on:loadstart="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'loading')"
+      x-on:load="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'loaded')"
+      x-on:error="$root.setImageState($el.closest('[data-image-id]').dataset.imageId, 'error')"
     />
   )}
 </div>

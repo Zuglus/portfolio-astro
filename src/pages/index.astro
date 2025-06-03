@@ -16,7 +16,80 @@ import { projects } from '../data/projects';
       currentProject: null,
       currentSlideIndex: 0,
       
+      // Store состояний загрузки изображений
+      imageStore: {
+        states: new Map(),
+        
+        // Генерация уникального ID для изображения
+        generateId(src, width = '', height = '') {
+          const normalizedSrc = typeof src === 'string' ? src : src.src || '';
+          return btoa(normalizedSrc + width + height).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+        },
+        
+        // Установка состояния изображения
+        setState(imageId, state, metadata = {}) {
+          this.states.set(imageId, {
+            state,
+            timestamp: Date.now(),
+            ...metadata
+          });
+          
+          // Диспатчим событие для реактивности
+          window.dispatchEvent(new CustomEvent('imageStateChanged', {
+            detail: { imageId, state, metadata }
+          }));
+        },
+        
+        // Получение состояния изображения
+        getState(imageId) {
+          return this.states.get(imageId)?.state || 'idle';
+        },
+        
+        // Получение метаданных изображения
+        getMetadata(imageId) {
+          return this.states.get(imageId) || {};
+        },
+        
+        // Проверка состояния
+        isIdle(imageId) { return this.getState(imageId) === 'idle'; },
+        isLoading(imageId) { return this.getState(imageId) === 'loading'; },
+        isLoaded(imageId) { return this.getState(imageId) === 'loaded'; },
+        isError(imageId) { return this.getState(imageId) === 'error'; },
+        
+        // Очистка старых состояний (старше 5 минут)
+        cleanup() {
+          const now = Date.now();
+          const maxAge = 5 * 60 * 1000; // 5 минут
+          
+          for (const [imageId, data] of this.states) {
+            if (now - data.timestamp > maxAge) {
+              this.states.delete(imageId);
+            }
+          }
+        },
+        
+        // Получение статистики
+        getStats() {
+          const states = Array.from(this.states.values());
+          return {
+            total: states.length,
+            idle: states.filter(s => s.state === 'idle').length,
+            loading: states.filter(s => s.state === 'loading').length,
+            loaded: states.filter(s => s.state === 'loaded').length,
+            error: states.filter(s => s.state === 'error').length
+          };
+        }
+      },
+      
       init() {
+        // Инициализация imageStore
+        this.imageStore.cleanup();
+        
+        // Периодическая очистка imageStore
+        setInterval(() => {
+          this.imageStore.cleanup();
+        }, 60000); // каждую минуту
+        
         // Обработка клавиш
         document.addEventListener('keydown', (e) => {
           if (!this.isModalOpen) return;
@@ -66,6 +139,19 @@ import { projects } from '../data/projects';
       
       get currentSlide() {
         return this.currentProject?.slides?.[this.currentSlideIndex] || null;
+      },
+      
+      // Методы для работы с imageStore из других компонентов
+      setImageState(imageId, state, metadata = {}) {
+        this.imageStore.setState(imageId, state, metadata);
+      },
+      
+      getImageState(imageId) {
+        return this.imageStore.getState(imageId);
+      },
+      
+      getImageMetadata(imageId) {
+        return this.imageStore.getMetadata(imageId);
       }
     }"
     @open-modal="openModal($event.detail.projectId)"

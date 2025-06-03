@@ -109,6 +109,162 @@ body {
   color: var(--color-secondary);
 }
 
+
+/* ===== СИСТЕМА СОСТОЯНИЙ ЗАГРУЗКИ ===== */
+
+/* CSS Custom Properties для управления состояниями */
+:root {
+  /* Timing функции для анимаций */
+  --loading-transition-duration: 300ms;
+  --loading-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --loading-shimmer-duration: 1.5s;
+  --loading-fade-duration: 500ms;
+  
+  /* Цвета состояний */
+  --loading-skeleton-bg: rgba(255, 255, 255, 0.1);
+  --loading-skeleton-highlight: rgba(255, 255, 255, 0.2);
+  --loading-error-bg: rgba(220, 38, 38, 0.1);
+  --loading-error-border: rgba(220, 38, 38, 0.3);
+  
+  /* Z-index для состояний */
+  --loading-overlay-z: 10;
+  --loading-skeleton-z: 5;
+}
+
+/* Базовые стили для состояний загрузки */
+[data-image-state] {
+  position: relative;
+  transition: all var(--loading-transition-duration) var(--loading-transition-easing);
+}
+
+/* Состояние idle - готово к загрузке */
+[data-image-state="idle"] {
+  opacity: 1;
+}
+
+/* Состояние loading - процесс загрузки */
+[data-image-state="loading"] {
+  opacity: 0.8;
+}
+
+[data-image-state="loading"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--loading-skeleton-bg);
+  z-index: var(--loading-skeleton-z);
+  pointer-events: none;
+}
+
+/* Состояние loaded - успешно загружено */
+[data-image-state="loaded"] {
+  opacity: 1;
+}
+
+[data-image-state="loaded"] img,
+[data-image-state="loaded"] picture {
+  animation: loading-fade-in var(--loading-fade-duration) var(--loading-transition-easing);
+}
+
+/* Состояние error - ошибка загрузки */
+[data-image-state="error"] {
+  opacity: 0.6;
+  background: var(--loading-error-bg);
+  border: 1px solid var(--loading-error-border);
+}
+
+[data-image-state="error"]::after {
+  content: '⚠️';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  z-index: var(--loading-overlay-z);
+  pointer-events: none;
+}
+
+/* Анимации */
+@keyframes loading-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes loading-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Shimmer эффект для loading состояния */
+[data-image-state="loading"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--loading-skeleton-highlight),
+    transparent
+  );
+  animation: loading-shimmer var(--loading-shimmer-duration) infinite;
+  z-index: calc(var(--loading-skeleton-z) + 1);
+  pointer-events: none;
+}
+
+/* Утилитарные классы */
+.loading-state-idle { opacity: 1; }
+.loading-state-loading { opacity: 0.8; }
+.loading-state-loaded { opacity: 1; }
+.loading-state-error { opacity: 0.6; }
+
+/* Responsive изменения для мобильных */
+@media (max-width: 768px) {
+  :root {
+    --loading-transition-duration: 200ms;
+    --loading-shimmer-duration: 1s;
+    --loading-fade-duration: 300ms;
+  }
+}
+
+/* Поддержка prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --loading-transition-duration: 0ms;
+    --loading-shimmer-duration: 0ms;
+    --loading-fade-duration: 0ms;
+  }
+  
+  [data-image-state="loading"]::after {
+    animation: none;
+    background: var(--loading-skeleton-highlight);
+  }
+  
+  @keyframes loading-fade-in {
+    from, to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* ===== КОНЕЦ СИСТЕМЫ СОСТОЯНИЙ ЗАГРУЗКИ ===== */
+
 /* Анимации */
 @keyframes spin-slow {
   from { transform: rotate(0deg); }
