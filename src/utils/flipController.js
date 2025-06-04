@@ -13,15 +13,53 @@ export const FLIP_CONFIG = {
   BLUR_AMOUNT: 8
 } as const;
 
+// Интерфейсы для TypeScript - определяем в том же модуле
+export interface ElementRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  centerX: number;
+  centerY: number;
+  transform: string;
+  borderRadius: string;
+  background: ElementBackground;
+  zIndex: string;
+}
+
+export interface ElementBackground {
+  type: 'image' | 'color';
+  src?: string;
+  objectFit?: string;
+  objectPosition?: string;
+  background?: string;
+  backgroundColor?: string;
+}
+
+// Интерфейс для FLIP контроллера
+export interface IFlipAnimationController {
+  readonly activeAnimations: Map<string, Animation>;
+  readonly animationElements: Set<HTMLElement>;
+  readonly isAnimating: boolean;
+  readonly hiddenElements: Map<HTMLElement, any>;
+  
+  captureElementRect(element: HTMLElement): ElementRect | null;
+  animateOpen(sourceElement: HTMLElement, targetContainer?: HTMLElement, onComplete?: () => Promise<void>): Promise<void>;
+  animateClose(modalContainer: HTMLElement, targetElement: HTMLElement, onComplete?: () => Promise<void>): Promise<void>;
+  hideElementSafely(element: HTMLElement): void;
+  restoreElementSafely(element: HTMLElement): void;
+  cleanup(): void;
+}
+
 /**
  * Контроллер FLIP анимаций
  * Реализует диалектику движения: от потенциального (статичная карточка) к актуальному (модальное окно)
  */
-export class FlipAnimationController {
-  private activeAnimations = new Map<string, Animation>();
-  private animationElements = new Set<HTMLElement>();
-  private isAnimating = false;
-  private hiddenElements = new Map<HTMLElement, any>();
+export class FlipAnimationController implements IFlipAnimationController {
+  private _activeAnimations = new Map<string, Animation>();
+  private _animationElements = new Set<HTMLElement>();
+  private _isAnimating = false;
+  private _hiddenElements = new Map<HTMLElement, any>();
 
   /**
    * Захват состояния элемента - фиксация "первого" состояния для FLIP
@@ -91,7 +129,7 @@ export class FlipAnimationController {
     this.applyBackground(animationEl, sourceRect.background, sourceElement);
     
     document.body.appendChild(animationEl);
-    this.animationElements.add(animationEl);
+    this._animationElements.add(animationEl);
     
     return animationEl;
   }
@@ -162,8 +200,8 @@ export class FlipAnimationController {
    * Анимация открытия - диалектический переход от частного к общему
    */
   async animateOpen(sourceElement: HTMLElement, targetContainer?: HTMLElement, onComplete?: () => Promise<void>): Promise<void> {
-    if (this.isAnimating) return;
-    this.isAnimating = true;
+    if (this._isAnimating) return;
+    this._isAnimating = true;
 
     try {
       const sourceRect = this.captureElementRect(sourceElement);
@@ -207,7 +245,7 @@ export class FlipAnimationController {
       this.restoreElementSafely(sourceElement);
       if (onComplete) await onComplete();
     } finally {
-      this.isAnimating = false;
+      this._isAnimating = false;
     }
   }
 
@@ -215,8 +253,8 @@ export class FlipAnimationController {
    * Анимация закрытия - возврат к источнику
    */
   async animateClose(modalContainer: HTMLElement, targetElement: HTMLElement, onComplete?: () => Promise<void>): Promise<void> {
-    if (this.isAnimating) return;
-    this.isAnimating = true;
+    if (this._isAnimating) return;
+    this._isAnimating = true;
 
     try {
       const sourceRect = this.calculateTargetRect(modalContainer);
@@ -263,7 +301,7 @@ export class FlipAnimationController {
       this.restoreElementSafely(targetElement);
       if (onComplete) await onComplete();
     } finally {
-      this.isAnimating = false;
+      this._isAnimating = false;
     }
   }
 
@@ -280,7 +318,7 @@ export class FlipAnimationController {
       transition: element.style.transition
     };
     
-    this.hiddenElements.set(element, originalState);
+    this._hiddenElements.set(element, originalState);
     
     element.style.visibility = 'hidden';
     element.style.opacity = '0';
@@ -293,7 +331,7 @@ export class FlipAnimationController {
   restoreElementSafely(element: HTMLElement): void {
     if (!element) return;
     
-    const originalState = this.hiddenElements.get(element);
+    const originalState = this._hiddenElements.get(element);
     
     if (originalState) {
       element.style.opacity = originalState.opacity;
@@ -301,7 +339,7 @@ export class FlipAnimationController {
       element.style.transform = originalState.transform;
       element.style.transition = originalState.transition;
       
-      this.hiddenElements.delete(element);
+      this._hiddenElements.delete(element);
     } else {
       element.style.removeProperty('opacity');
       element.style.removeProperty('visibility');
@@ -325,7 +363,7 @@ export class FlipAnimationController {
         if (animationEl.parentNode) {
           animationEl.parentNode.removeChild(animationEl);
         }
-        this.animationElements.delete(animationEl);
+        this._animationElements.delete(animationEl);
       }, 200);
     }
   }
@@ -334,48 +372,25 @@ export class FlipAnimationController {
    * Полная очистка контроллера
    */
   cleanup(): void {
-    this.hiddenElements.forEach((originalState, element) => {
+    this._hiddenElements.forEach((originalState, element) => {
       this.restoreElementSafely(element);
     });
     
-    this.animationElements.forEach(el => {
+    this._animationElements.forEach(el => {
       if (el.parentNode) {
         el.parentNode.removeChild(el);
       }
     });
     
-    this.animationElements.clear();
-    this.activeAnimations.clear();
-    this.hiddenElements.clear();
-    this.isAnimating = false;
+    this._animationElements.clear();
+    this._activeAnimations.clear();
+    this._hiddenElements.clear();
+    this._isAnimating = false;
   }
 
-  // Геттеры для доступа к приватным свойствам (для совместимости с интерфейсом)
-  get activeAnimations() { return this.activeAnimations; }
-  get animationElements() { return this.animationElements; }
-  get isAnimating() { return this.isAnimating; }
-  get hiddenElements() { return this.hiddenElements; }
-}
-
-// Интерфейсы для TypeScript (перенесены из global.d.ts для согласованности)
-interface ElementRect {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  centerX: number;
-  centerY: number;
-  transform: string;
-  borderRadius: string;
-  background: ElementBackground;
-  zIndex: string;
-}
-
-interface ElementBackground {
-  type: 'image' | 'color';
-  src?: string;
-  objectFit?: string;
-  objectPosition?: string;
-  background?: string;
-  backgroundColor?: string;
+  // Геттеры для доступа к приватным свойствам
+  get activeAnimations() { return this._activeAnimations; }
+  get animationElements() { return this._animationElements; }
+  get isAnimating() { return this._isAnimating; }
+  get hiddenElements() { return this._hiddenElements; }
 }

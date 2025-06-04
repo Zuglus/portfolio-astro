@@ -1,7 +1,10 @@
 /**
  * Глобальные объявления типов для портфолио
- * Исправленная типизация FLIP анимаций с правильным разделением конструктора и экземпляра
+ * Использует экспортированные типы из FLIP контроллера
  */
+
+// Импортируем типы из FLIP контроллера
+import type { IFlipAnimationController, ElementRect, ElementBackground } from '../utils/flipController.js';
 
 // Конфигурация FLIP анимаций
 interface FlipConfig {
@@ -11,60 +14,6 @@ interface FlipConfig {
   Z_INDEX: number;
   SCALE_FACTOR: number;
   BLUR_AMOUNT: number;
-}
-
-// Прямоугольник элемента для FLIP анимации
-interface ElementRect {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  centerX: number;
-  centerY: number;
-  transform: string;
-  borderRadius: string;
-  background: ElementBackground;
-  zIndex: string;
-}
-
-// Фон элемента (изображение или цвет)
-interface ElementBackground {
-  type: 'image' | 'color';
-  src?: string;
-  objectFit?: string;
-  objectPosition?: string;
-  background?: string;
-  backgroundColor?: string;
-}
-
-// Экземпляр контроллера FLIP анимаций
-interface FlipAnimationControllerInstance {
-  activeAnimations: Map<string, Animation>;
-  animationElements: Set<HTMLElement>;
-  isAnimating: boolean;
-  hiddenElements: Map<HTMLElement, any>;
-  
-  captureElementRect(element: HTMLElement): ElementRect | null;
-  extractBackground(element: HTMLElement): ElementBackground;
-  createAnimationElement(sourceRect: ElementRect, sourceElement: HTMLElement): HTMLElement;
-  applyBackground(element: HTMLElement, background: ElementBackground, sourceElement: HTMLElement): void;
-  calculateTargetRect(modalContainer?: HTMLElement): ElementRect;
-  animateOpen(sourceElement: HTMLElement, targetContainer?: HTMLElement, onComplete?: () => Promise<void>): Promise<void>;
-  animateClose(modalContainer: HTMLElement, targetElement: HTMLElement, onComplete?: () => Promise<void>): Promise<void>;
-  hideElementSafely(element: HTMLElement): void;
-  restoreElementSafely(element: HTMLElement): void;
-  cleanupAnimation(animationEl: HTMLElement): void;
-  cleanup(): void;
-}
-
-// Конструктор для FlipAnimationController - исправленная типизация
-interface FlipAnimationControllerConstructor {
-  new(): FlipAnimationControllerInstance;
-}
-
-// Утилиты для FLIP анимаций
-interface FlipUtils {
-  forceRestoreElement(element: HTMLElement): void;
 }
 
 // Данные портфолио
@@ -84,17 +33,22 @@ interface PortfolioProject {
   }>;
 }
 
-// Расширение глобального объекта Window - правильная типизация
+// Утилиты для FLIP анимаций
+interface FlipUtils {
+  forceRestoreElement(element: HTMLElement): void;
+}
+
+// Расширение глобального объекта Window
 declare global {
   interface Window {
     // Конфигурация FLIP анимаций
     FLIP_CONFIG: FlipConfig;
     
-    // Конструктор контроллера FLIP анимаций (правильно типизированный)
-    FlipAnimationController: FlipAnimationControllerConstructor;
+    // Конструктор FLIP контроллера
+    FlipAnimationController: new () => IFlipAnimationController;
     
     // Глобальный экземпляр контроллера
-    globalFlipController: FlipAnimationControllerInstance;
+    globalFlipController: IFlipAnimationController;
     
     // Утилиты для FLIP анимаций
     flipUtils: FlipUtils;
