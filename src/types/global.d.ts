@@ -1,6 +1,6 @@
 /**
  * Глобальные объявления типов для портфолио
- * Расширения window объекта для FLIP анимаций и управления состоянием
+ * Исправленная типизация FLIP анимаций с правильным разделением конструктора и экземпляра
  */
 
 // Конфигурация FLIP анимаций
@@ -37,8 +37,8 @@ interface ElementBackground {
   backgroundColor?: string;
 }
 
-// Контроллер FLIP анимаций
-interface FlipAnimationController {
+// Экземпляр контроллера FLIP анимаций
+interface FlipAnimationControllerInstance {
   activeAnimations: Map<string, Animation>;
   animationElements: Set<HTMLElement>;
   isAnimating: boolean;
@@ -57,9 +57,9 @@ interface FlipAnimationController {
   cleanup(): void;
 }
 
-// Конструктор для FlipAnimationController
+// Конструктор для FlipAnimationController - исправленная типизация
 interface FlipAnimationControllerConstructor {
-  new(): FlipAnimationController;
+  new(): FlipAnimationControllerInstance;
 }
 
 // Утилиты для FLIP анимаций
@@ -84,17 +84,17 @@ interface PortfolioProject {
   }>;
 }
 
-// Расширение глобального объекта Window
+// Расширение глобального объекта Window - правильная типизация
 declare global {
   interface Window {
     // Конфигурация FLIP анимаций
     FLIP_CONFIG: FlipConfig;
     
-    // Конструктор контроллера FLIP анимаций
+    // Конструктор контроллера FLIP анимаций (правильно типизированный)
     FlipAnimationController: FlipAnimationControllerConstructor;
     
     // Глобальный экземпляр контроллера
-    globalFlipController: FlipAnimationController;
+    globalFlipController: FlipAnimationControllerInstance;
     
     // Утилиты для FLIP анимаций
     flipUtils: FlipUtils;
