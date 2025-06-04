@@ -1,4 +1,5 @@
 @import "./animations.css";
+@import "./modal-transitions.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -70,10 +71,17 @@ body {
   padding: 0;
 }
 
+/* Блокировка скролла при открытом модальном окне */
+body.modal-open {
+  overflow: hidden;
+  height: 100vh;
+}
+
 /* Кастомный скроллбар */
 .modal-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--color-secondary) transparent;
+  scroll-behavior: smooth;
 }
 
 .modal-scrollbar::-webkit-scrollbar {
@@ -146,4 +154,33 @@ body {
   object-fit: cover;
   width: 100%;
   height: 100%;
+}
+
+/* Улучшенный фокус для accessibility */
+:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* Плавные переходы для интерактивных элементов */
+button, a, [role="button"] {
+  transition: all 200ms ease;
+}
+
+/* Предотвращение Flash of Unstyled Content */
+.modal-container {
+  contain: layout style paint;
+}
+
+/* Оптимизация для анимаций */
+.will-change-auto {
+  will-change: auto;
+}
+
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
 }

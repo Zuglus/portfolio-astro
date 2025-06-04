@@ -14,6 +14,7 @@ import { projects } from '../data/projects';
       isModalOpen: false,
       currentProject: null,
       currentSlideIndex: 0,
+      modalState: 'exited', // exited, entering, entered, exiting
       
       init() {
         // Обработчик модального окна
@@ -41,15 +42,29 @@ import { projects } from '../data/projects';
           this.currentProject = project;
           this.currentSlideIndex = 0;
           this.isModalOpen = true;
+          this.modalState = 'entering';
           document.body.style.overflow = 'hidden';
+          
+          // Переход к состоянию entered
+          this.$nextTick(() => {
+            setTimeout(() => {
+              this.modalState = 'entered';
+            }, 50);
+          });
         }
       },
       
       closeModal() {
-        this.isModalOpen = false;
-        this.currentProject = null;
-        this.currentSlideIndex = 0;
-        document.body.style.overflow = '';
+        this.modalState = 'exiting';
+        
+        // Задержка для завершения анимации закрытия
+        setTimeout(() => {
+          this.isModalOpen = false;
+          this.currentProject = null;
+          this.currentSlideIndex = 0;
+          this.modalState = 'exited';
+          document.body.style.overflow = '';
+        }, 200);
       },
       
       nextSlide() {
@@ -85,30 +100,45 @@ import { projects } from '../data/projects';
     <!-- Footer -->
     <Footer />
 
-    <!-- Модальное окно -->
+    <!-- Модальное окно с новыми анимациями -->
     <div 
       x-show="isModalOpen" 
-      x-transition.opacity.duration.300ms
       @click.self="closeModal()" 
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" 
+      class="modal-backdrop"
+      :class="modalState === 'entering' ? 'modal-entering' : modalState === 'entered' ? 'modal-entered' : modalState === 'exiting' ? 'modal-exiting' : ''"
       style="display: none;"
     >
       <div 
-        x-show="isModalOpen"
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 scale-95"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
         @click.stop=""
-        class="relative w-full max-w-7xl mx-auto bg-primary border border-white/10 rounded-[1.875rem] md:rounded-[1.25rem] shadow-xl overflow-hidden"
+        class="modal-container"
+        :class="modalState === 'entering' ? 'modal-entering' : modalState === 'entered' ? 'modal-entered' : modalState === 'exiting' ? 'modal-exiting' : ''"
       >
+        <!-- Кнопка закрытия с новыми анимациями -->
+        <button
+          @click="closeModal()"
+          class="modal-close-button focus:outline-none focus:ring-2 focus:ring-white/50"
+          aria-label="Закрыть"
+        >
+          <svg
+            class="w-12 h-12 md:w-6 md:h-6 text-white/80 group-hover:text-white transition-colors duration-300 ease-in-out"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
         <!-- Контент модального окна -->
         <div class="h-[90vh] overflow-y-auto modal-scrollbar">
           <div class="p-[3.75rem] md:p-[2.5rem]">
-            <!-- Заголовок -->
-            <header class="space-y-[2.8125rem] md:space-y-[1.875rem] mb-8" x-show="currentProject">
+            <!-- Заголовок с анимацией -->
+            <header class="modal-header space-y-[2.8125rem] md:space-y-[1.875rem] mb-8" x-show="currentProject">
               <div>
                 <h3 
                   x-text="currentProject?.title || ''"
@@ -129,20 +159,20 @@ import { projects } from '../data/projects';
               </div>
             </header>
 
-            <!-- Слайдер -->
-            <div class="slider w-full max-w-[93.75rem] mx-auto overflow-hidden group relative" x-show="currentSlide">
-              <!-- Изображение слайда -->
-              <div class="overflow-hidden mb-6">
+            <!-- Слайдер с анимациями -->
+            <div class="modal-slider w-full max-w-[93.75rem] mx-auto overflow-hidden group relative" x-show="currentSlide">
+              <!-- Изображение слайда с анимацией -->
+              <div class="modal-slide-image overflow-hidden mb-6">
                 <img
                   x-bind:src="currentSlide?.image?.src || ''"
                   x-bind:alt="`${currentProject?.title || ''} - слайд ${currentSlideIndex + 1}`"
-                  class="w-full object-contain rounded-[1.25rem]"
+                  class="w-full object-contain rounded-[1.25rem] transition-opacity duration-300"
                   loading="lazy"
                 />
               </div>
 
-              <!-- Кнопки навигации -->
-              <div class="flex justify-center space-x-6 mb-6" x-show="currentProject?.slides?.length > 1">
+              <!-- Кнопки навигации с анимацией -->
+              <div class="modal-navigation flex justify-center space-x-6 mb-6" x-show="currentProject?.slides?.length > 1">
                 <button
                   @click="prevSlide()"
                   class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer active:scale-95 transform md:w-[3rem] md:h-[3rem] md:text-5xl"
@@ -156,8 +186,8 @@ import { projects } from '../data/projects';
                 >&rarr;</button>
               </div>
 
-              <!-- Описание слайда -->
-              <div class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4">
+              <!-- Описание слайда с анимацией -->
+              <div class="modal-description font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4">
                 <p x-show="currentSlide?.task">
                   <span class="font-semibold">Задача: </span>
                   <span class="opacity-80" x-text="currentSlide?.task || ''"></span>
@@ -170,27 +200,6 @@ import { projects } from '../data/projects';
             </div>
           </div>
         </div>
-
-        <!-- Кнопка закрытия -->
-        <button
-          @click="closeModal()"
-          class="absolute top-6 right-6 p-4 md:p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white/50 z-50 group transition-all duration-300 ease-in-out shadow-lg"
-          aria-label="Закрыть"
-        >
-          <svg
-            class="w-12 h-12 md:w-6 md:h-6 text-white/80 group-hover:text-white transition-colors duration-300 ease-in-out"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
       </div>
     </div>
   </main>
