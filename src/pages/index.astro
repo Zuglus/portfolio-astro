@@ -14,17 +14,41 @@ import { projects } from '../data/projects';
       isModalOpen: false,
       currentProject: null,
       currentSlideIndex: 0,
-      modalState: 'exited', // exited, entering, entered, exiting
+      modalContainer: null,
+      isFlipAnimating: false,
+      flipController: null,
       
       init() {
-        // Обработчик модального окна
-        document.addEventListener('open-modal', (e) => {
-          this.openModal(e.detail.projectId);
+        this.initializeFlipController();
+        this.setupEventListeners();
+        
+        this.$nextTick(() => {
+          this.modalContainer = this.$refs.modalContent;
+        });
+      },
+      
+      initializeFlipController() {
+        // Используем встроенный FLIP контроллер вместо импорта
+        if (window.FlipAnimationController) {
+          this.flipController = new window.FlipAnimationController();
+          console.log('FLIP контроллер инициализирован');
+        } else {
+          console.warn('FLIP контроллер недоступен');
+          this.flipController = null;
+        }
+      },
+      
+      setupEventListeners() {
+        document.addEventListener('flip-open-modal', (e) => {
+          this.handleFlipOpenModal(e.detail);
         });
         
-        // Обработка клавиш
+        document.addEventListener('open-modal', (e) => {
+          this.openModal(e.detail.projectId, false);
+        });
+        
         document.addEventListener('keydown', (e) => {
-          if (!this.isModalOpen) return;
+          if (!this.isModalOpen || this.isFlipAnimating) return;
           
           if (e.key === 'Escape') {
             this.closeModal();
@@ -36,35 +60,115 @@ import { projects } from '../data/projects';
         });
       },
       
-      openModal(projectId) {
+      async handleFlipOpenModal({ projectId, sourceElement, cardIndex }) {
+        if (this.isFlipAnimating || this.isModalOpen) return;
+        
+        try {
+          this.isFlipAnimating = true;
+          
+          const project = window.portfolioProjects?.find(p => p.id === projectId);
+          if (!project) {
+            throw new Error('Проект не найден');
+          }
+          
+          this.currentProject = project;
+          this.currentSlideIndex = 0;
+          
+          sourceElement.classList.add('flip-animating');
+          
+          if (this.flipController) {
+            await this.flipController.animateOpen(
+              sourceElement,
+              this.modalContainer,
+              () => this.completeModalOpen()
+            );
+          } else {
+            await this.completeModalOpen();
+          }
+          
+        } catch (error) {
+          console.warn('Ошибка FLIP анимации:', error);
+          this.openModal(projectId, false);
+        } finally {
+          this.isFlipAnimating = false;
+        }
+      },
+      
+      async completeModalOpen() {
+        this.isModalOpen = true;
+        document.body.style.overflow = 'hidden';
+        
+        await this.$nextTick();
+        
+        if (this.modalContainer) {
+          this.modalContainer.classList.add('flip-ready');
+        }
+        
+        setTimeout(() => {
+          document.dispatchEvent(new CustomEvent('flip-animation-complete'));
+        }, 100);
+      },
+      
+      openModal(projectId, useFlip = true) {
+        if (this.isModalOpen) return;
+        
         const project = window.portfolioProjects?.find(p => p.id === projectId);
         if (project) {
           this.currentProject = project;
           this.currentSlideIndex = 0;
           this.isModalOpen = true;
-          this.modalState = 'entering';
           document.body.style.overflow = 'hidden';
           
-          // Переход к состоянию entered
           this.$nextTick(() => {
-            setTimeout(() => {
-              this.modalState = 'entered';
-            }, 50);
+            if (this.modalContainer) {
+              this.modalContainer.classList.add('flip-ready');
+            }
           });
         }
       },
       
-      closeModal() {
-        this.modalState = 'exiting';
+      async closeModal() {
+        if (!this.isModalOpen || this.isFlipAnimating) return;
         
-        // Задержка для завершения анимации закрытия
-        setTimeout(() => {
-          this.isModalOpen = false;
-          this.currentProject = null;
-          this.currentSlideIndex = 0;
-          this.modalState = 'exited';
-          document.body.style.overflow = '';
-        }, 200);
+        try {
+          this.isFlipAnimating = true;
+          
+          const sourceElement = document.querySelector(`[data-flip-source='${this.currentProject?.id}']`);
+          
+          if (this.modalContainer) {
+            this.modalContainer.classList.remove('flip-ready');
+            this.modalContainer.classList.add('flip-exiting');
+          }
+          
+          if (this.flipController && sourceElement) {
+            await this.flipController.animateClose(
+              this.modalContainer,
+              sourceElement,
+              () => this.completeModalClose()
+            );
+          } else {
+            setTimeout(() => this.completeModalClose(), 200);
+          }
+          
+        } catch (error) {
+          console.warn('Ошибка FLIP анимации закрытия:', error);
+          this.completeModalClose();
+        } finally {
+          this.isFlipAnimating = false;
+        }
+      },
+      
+      completeModalClose() {
+        this.isModalOpen = false;
+        this.currentProject = null;
+        this.currentSlideIndex = 0;
+        document.body.style.overflow = '';
+        
+        if (this.modalContainer) {
+          this.modalContainer.classList.remove('flip-ready', 'flip-exiting');
+        }
+        
+        document.dispatchEvent(new CustomEvent('flip-animation-complete'));
       },
       
       nextSlide() {
@@ -88,57 +192,33 @@ import { projects } from '../data/projects';
       }
     }"
   >
-    <!-- Шапка сайта -->
     <Header />
-    
-    <!-- Секция портфолио -->
     <PortfolioSection />
-    
-    <!-- Секция связаться -->
     <ContactSection />
-    
-    <!-- Footer -->
     <Footer />
 
-    <!-- Модальное окно с новыми анимациями -->
     <div 
       x-show="isModalOpen" 
+      x-transition:enter="transition-opacity duration-300"
+      x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100"
+      x-transition:leave="transition-opacity duration-200"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave-end="opacity-0"
       @click.self="closeModal()" 
-      class="modal-backdrop"
-      :class="modalState === 'entering' ? 'modal-entering' : modalState === 'entered' ? 'modal-entered' : modalState === 'exiting' ? 'modal-exiting' : ''"
-      style="display: none;"
+      class="fixed inset-0 z-50 flex items-center justify-center flip-modal-backdrop"
+      :class="{ 'flip-entering': isModalOpen && !isFlipAnimating }"
+      style="display: none; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);"
     >
       <div 
+        x-ref="modalContent"
+        x-show="isModalOpen"
         @click.stop=""
-        class="modal-container"
-        :class="modalState === 'entering' ? 'modal-entering' : modalState === 'entered' ? 'modal-entered' : modalState === 'exiting' ? 'modal-exiting' : ''"
+        class="relative w-full max-w-7xl mx-auto bg-primary border border-white/10 rounded-[1.875rem] md:rounded-[1.25rem] shadow-xl overflow-hidden flip-modal-content"
       >
-        <!-- Кнопка закрытия с новыми анимациями -->
-        <button
-          @click="closeModal()"
-          class="modal-close-button focus:outline-none focus:ring-2 focus:ring-white/50"
-          aria-label="Закрыть"
-        >
-          <svg
-            class="w-12 h-12 md:w-6 md:h-6 text-white/80 group-hover:text-white transition-colors duration-300 ease-in-out"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-
-        <!-- Контент модального окна -->
         <div class="h-[90vh] overflow-y-auto modal-scrollbar">
           <div class="p-[3.75rem] md:p-[2.5rem]">
-            <!-- Заголовок с анимацией -->
-            <header class="modal-header space-y-[2.8125rem] md:space-y-[1.875rem] mb-8" x-show="currentProject">
+            <header class="space-y-[2.8125rem] md:space-y-[1.875rem] mb-8" x-show="currentProject">
               <div>
                 <h3 
                   x-text="currentProject?.title || ''"
@@ -159,35 +239,33 @@ import { projects } from '../data/projects';
               </div>
             </header>
 
-            <!-- Слайдер с анимациями -->
-            <div class="modal-slider w-full max-w-[93.75rem] mx-auto overflow-hidden group relative" x-show="currentSlide">
-              <!-- Изображение слайда с анимацией -->
-              <div class="modal-slide-image overflow-hidden mb-6">
+            <div class="slider w-full max-w-[93.75rem] mx-auto overflow-hidden group relative" x-show="currentSlide">
+              <div class="overflow-hidden mb-6">
                 <img
                   x-bind:src="currentSlide?.image?.src || ''"
                   x-bind:alt="`${currentProject?.title || ''} - слайд ${currentSlideIndex + 1}`"
-                  class="w-full object-contain rounded-[1.25rem] transition-opacity duration-300"
+                  class="w-full object-contain rounded-[1.25rem]"
                   loading="lazy"
                 />
               </div>
 
-              <!-- Кнопки навигации с анимацией -->
-              <div class="modal-navigation flex justify-center space-x-6 mb-6" x-show="currentProject?.slides?.length > 1">
+              <div class="flex justify-center space-x-6 mb-6" x-show="currentProject?.slides?.length > 1">
                 <button
                   @click="prevSlide()"
                   class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer active:scale-95 transform md:w-[3rem] md:h-[3rem] md:text-5xl"
                   aria-label="Предыдущий слайд"
+                  :disabled="isFlipAnimating"
                 >&larr;</button>
 
                 <button
                   @click="nextSlide()"
                   class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer active:scale-95 transform md:w-[3rem] md:h-[3rem] md:text-5xl"
                   aria-label="Следующий слайд"
+                  :disabled="isFlipAnimating"
                 >&rarr;</button>
               </div>
 
-              <!-- Описание слайда с анимацией -->
-              <div class="modal-description font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4">
+              <div class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4">
                 <p x-show="currentSlide?.task">
                   <span class="font-semibold">Задача: </span>
                   <span class="opacity-80" x-text="currentSlide?.task || ''"></span>
@@ -200,6 +278,27 @@ import { projects } from '../data/projects';
             </div>
           </div>
         </div>
+
+        <button
+          @click="closeModal()"
+          class="absolute top-6 right-6 p-4 md:p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white/50 z-50 group transition-all duration-300 ease-in-out shadow-lg"
+          aria-label="Закрыть"
+          :disabled="isFlipAnimating"
+        >
+          <svg
+            class="w-12 h-12 md:w-6 md:h-6 text-white/80 group-hover:text-white transition-colors duration-300 ease-in-out"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       </div>
     </div>
   </main>
@@ -207,4 +306,349 @@ import { projects } from '../data/projects';
 
 <script define:vars={{ projects }}>
   window.portfolioProjects = projects;
+</script>
+
+<!-- ВСТРОЕННЫЙ FLIP КОНТРОЛЛЕР -->
+<script>
+// FLIP Анимации - Встроенная версия
+// Константы для анимации
+window.FLIP_CONFIG = {
+  DURATION: 400,
+  EASING: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+  ELASTIC_EASING: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+  Z_INDEX: 9999,
+  SCALE_FACTOR: 0.95,
+  BLUR_AMOUNT: 8
+};
+
+// Класс для управления FLIP анимациями
+window.FlipAnimationController = class FlipAnimationController {
+  constructor() {
+    this.activeAnimations = new Map();
+    this.animationElements = new Set();
+    this.isAnimating = false;
+    this.hiddenElements = new Map(); // Отслеживание скрытых элементов
+  }
+
+  captureElementRect(element) {
+    if (!element) return null;
+    
+    const rect = element.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(element);
+    
+    return {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+      centerX: rect.left + rect.width / 2,
+      centerY: rect.top + rect.height / 2,
+      transform: computedStyle.transform,
+      borderRadius: computedStyle.borderRadius,
+      background: this.extractBackground(element),
+      zIndex: computedStyle.zIndex
+    };
+  }
+
+  extractBackground(element) {
+    const img = element.querySelector('img');
+    if (img && img.complete) {
+      return {
+        type: 'image',
+        src: img.src,
+        objectFit: window.getComputedStyle(img).objectFit,
+        objectPosition: window.getComputedStyle(img).objectPosition
+      };
+    }
+    
+    const computedStyle = window.getComputedStyle(element);
+    return {
+      type: 'color',
+      background: computedStyle.background,
+      backgroundColor: computedStyle.backgroundColor
+    };
+  }
+
+  createAnimationElement(sourceRect, sourceElement) {
+    const animationEl = document.createElement('div');
+    
+    Object.assign(animationEl.style, {
+      position: 'fixed',
+      left: `${sourceRect.left}px`,
+      top: `${sourceRect.top}px`,
+      width: `${sourceRect.width}px`,
+      height: `${sourceRect.height}px`,
+      borderRadius: sourceRect.borderRadius,
+      zIndex: window.FLIP_CONFIG.Z_INDEX,
+      pointerEvents: 'none',
+      willChange: 'transform, opacity, border-radius',
+      transformOrigin: 'center center',
+      overflow: 'hidden'
+    });
+
+    this.applyBackground(animationEl, sourceRect.background, sourceElement);
+    
+    document.body.appendChild(animationEl);
+    this.animationElements.add(animationEl);
+    
+    return animationEl;
+  }
+
+  applyBackground(element, background, sourceElement) {
+    if (background.type === 'image') {
+      const img = document.createElement('img');
+      img.src = background.src;
+      img.style.cssText = `
+        width: 100%;
+        height: 100%;
+        object-fit: ${background.objectFit};
+        object-position: ${background.objectPosition};
+        display: block;
+      `;
+      element.appendChild(img);
+    } else {
+      element.style.background = background.background;
+      element.style.backgroundColor = background.backgroundColor;
+    }
+  }
+
+  calculateTargetRect(modalContainer) {
+    if (!modalContainer) {
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const targetWidth = Math.min(viewportWidth * 0.9, 1200);
+      const targetHeight = Math.min(viewportHeight * 0.8, 800);
+      
+      return {
+        left: (viewportWidth - targetWidth) / 2,
+        top: (viewportHeight - targetHeight) / 2,
+        width: targetWidth,
+        height: targetHeight,
+        centerX: viewportWidth / 2,
+        centerY: viewportHeight / 2,
+        borderRadius: '1.875rem'
+      };
+    }
+    
+    const rect = modalContainer.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(modalContainer);
+    
+    return {
+      left: rect.left,
+      top: rect.top,
+      width: rect.width,
+      height: rect.height,
+      centerX: rect.left + rect.width / 2,
+      centerY: rect.top + rect.height / 2,
+      borderRadius: computedStyle.borderRadius
+    };
+  }
+
+  async animateOpen(sourceElement, targetContainer, onComplete) {
+    if (this.isAnimating) return;
+    this.isAnimating = true;
+
+    try {
+      const sourceRect = this.captureElementRect(sourceElement);
+      if (!sourceRect) throw new Error('Не удалось захватить позицию источника');
+
+      const animationEl = this.createAnimationElement(sourceRect, sourceElement);
+      const targetRect = this.calculateTargetRect(targetContainer);
+
+      const deltaX = targetRect.centerX - sourceRect.centerX;
+      const deltaY = targetRect.centerY - sourceRect.centerY;
+      const scaleX = targetRect.width / sourceRect.width;
+      const scaleY = targetRect.height / sourceRect.height;
+
+      this.hideElementSafely(sourceElement);
+
+      const animation = animationEl.animate([
+        {
+          transform: 'translate(0, 0) scale(1)',
+          borderRadius: sourceRect.borderRadius,
+          opacity: 1
+        },
+        {
+          transform: `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`,
+          borderRadius: targetRect.borderRadius,
+          opacity: 0.95
+        }
+      ], {
+        duration: window.FLIP_CONFIG.DURATION,
+        easing: window.FLIP_CONFIG.EASING,
+        fill: 'forwards'
+      });
+
+      await animation.finished;
+
+      if (onComplete) await onComplete();
+      this.cleanupAnimation(animationEl);
+
+    } catch (error) {
+      console.warn('Ошибка FLIP анимации:', error);
+      this.restoreElementSafely(sourceElement);
+      if (onComplete) await onComplete();
+    } finally {
+      this.isAnimating = false;
+    }
+  }
+
+  async animateClose(modalContainer, targetElement, onComplete) {
+    if (this.isAnimating) return;
+    this.isAnimating = true;
+
+    try {
+      const sourceRect = this.calculateTargetRect(modalContainer);
+      const targetRect = this.captureElementRect(targetElement);
+      
+      if (!targetRect) throw new Error('Не удалось найти целевой элемент');
+
+      const animationEl = this.createAnimationElement(sourceRect, modalContainer);
+
+      if (modalContainer) {
+        modalContainer.style.opacity = '0';
+      }
+
+      const deltaX = targetRect.centerX - sourceRect.centerX;
+      const deltaY = targetRect.centerY - sourceRect.centerY;
+      const scaleX = targetRect.width / sourceRect.width;
+      const scaleY = targetRect.height / sourceRect.height;
+
+      const animation = animationEl.animate([
+        {
+          transform: 'translate(0, 0) scale(1)',
+          borderRadius: sourceRect.borderRadius,
+          opacity: 0.95
+        },
+        {
+          transform: `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`,
+          borderRadius: targetRect.borderRadius,
+          opacity: 1
+        }
+      ], {
+        duration: window.FLIP_CONFIG.DURATION * 0.8,
+        easing: window.FLIP_CONFIG.ELASTIC_EASING,
+        fill: 'forwards'
+      });
+
+      await animation.finished;
+
+      this.restoreElementSafely(targetElement);
+      if (onComplete) await onComplete();
+      this.cleanupAnimation(animationEl);
+
+    } catch (error) {
+      console.warn('Ошибка FLIP анимации закрытия:', error);
+      this.restoreElementSafely(targetElement);
+      if (onComplete) await onComplete();
+    } finally {
+      this.isAnimating = false;
+    }
+  }
+
+  hideElementSafely(element) {
+    if (!element) return;
+    
+    const originalState = {
+      opacity: element.style.opacity,
+      visibility: element.style.visibility,
+      transform: element.style.transform,
+      transition: element.style.transition
+    };
+    
+    this.hiddenElements.set(element, originalState);
+    
+    element.style.visibility = 'hidden';
+    element.style.opacity = '0';
+    element.style.transition = 'none';
+    
+    console.log('Элемент скрыт безопасно:', element);
+  }
+
+  restoreElementSafely(element) {
+    if (!element) return;
+    
+    console.log('Восстанавливаем элемент:', element);
+    
+    const originalState = this.hiddenElements.get(element);
+    
+    if (originalState) {
+      element.style.opacity = originalState.opacity;
+      element.style.visibility = originalState.visibility;
+      element.style.transform = originalState.transform;
+      element.style.transition = originalState.transition;
+      
+      this.hiddenElements.delete(element);
+    } else {
+      element.style.removeProperty('opacity');
+      element.style.removeProperty('visibility');
+      element.style.removeProperty('transform');
+      element.style.removeProperty('transition');
+    }
+    
+    element.classList.remove('flip-preparing', 'flip-animating', 'flip-click-effect');
+    element.offsetHeight; // Принудительный reflow
+    
+    console.log('Элемент восстановлен:', element);
+  }
+
+  cleanupAnimation(animationEl) {
+    if (animationEl && animationEl.parentNode) {
+      animationEl.style.transition = 'opacity 200ms ease-out';
+      animationEl.style.opacity = '0';
+      
+      setTimeout(() => {
+        if (animationEl.parentNode) {
+          animationEl.parentNode.removeChild(animationEl);
+        }
+        this.animationElements.delete(animationEl);
+      }, 200);
+    }
+  }
+
+  cleanup() {
+    this.hiddenElements.forEach((originalState, element) => {
+      this.restoreElementSafely(element);
+    });
+    
+    this.animationElements.forEach(el => {
+      if (el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    });
+    
+    this.animationElements.clear();
+    this.activeAnimations.clear();
+    this.hiddenElements.clear();
+    this.isAnimating = false;
+  }
+}
+
+// Глобальные утилиты
+window.flipUtils = {
+  forceRestoreElement(element) {
+    if (element && window.globalFlipController) {
+      window.globalFlipController.restoreElementSafely(element);
+    }
+  }
+};
+
+// Создаем глобальный экземпляр
+window.globalFlipController = new window.FlipAnimationController();
+
+// Очистка при выгрузке страницы
+window.addEventListener('beforeunload', () => {
+  if (window.globalFlipController) {
+    window.globalFlipController.cleanup();
+  }
+});
+
+// Дополнительная очистка при ошибках
+window.addEventListener('error', () => {
+  if (window.globalFlipController) {
+    window.globalFlipController.cleanup();
+  }
+});
+
+console.log('FLIP анимации встроены и готовы к использованию');
 </script>

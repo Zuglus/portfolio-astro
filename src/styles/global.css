@@ -1,4 +1,5 @@
 @import "./animations.css";
+@import "./flip-animations.css";
 @import "./modal-transitions.css";
 @tailwind base;
 @tailwind components;
