@@ -3,11 +3,11 @@
  * Диалектический подход: от единства противоположностей (статика/динамика) к синтезу (плавные переходы)
  */
 
-// Константы конфигурации - неизменная основа для изменчивых анимаций
+// Константы конфигурации (используем CSS переменные)
 export const FLIP_CONFIG = {
-  DURATION: 400,
-  EASING: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
-  ELASTIC_EASING: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+  DURATION: 'var(--flip-duration)',
+  EASING: 'var(--flip-easing)',
+  ELASTIC_EASING: 'var(--ease-elastic)',
   Z_INDEX: 9999,
   SCALE_FACTOR: 0.95,
   BLUR_AMOUNT: 8

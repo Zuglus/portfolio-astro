@@ -15,18 +15,19 @@ export const ANIMATION_TYPES = {
   STAGGER: 'stagger'
 };
 
-// Тайминги для естественности движения
+// Тайминги для естественности движения (используем CSS переменные)
 export const ANIMATION_TIMINGS = {
-  FAST: 200,
-  NORMAL: 300,
-  SLOW: 500,
-  VERY_SLOW: 800
+  FAST: 'var(--duration-fast)',
+  NORMAL: 'var(--duration-normal)',
+  SLOW: 'var(--duration-slow)',
+  VERY_SLOW: '800ms'
 };
 
-// Easing функции (отражают физику реального мира)
+// Easing функции (используем CSS переменные)
 export const EASING = {
-  NATURAL: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
-  BOUNCE: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+  NATURAL: 'var(--ease-natural)',
+  BOUNCE: 'var(--ease-bounce)',
+  ELASTIC: 'var(--ease-elastic)',
   SMOOTH: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   SHARP: 'cubic-bezier(0.55, 0.055, 0.675, 0.19)'
 };

@@ -1,0 +1,29 @@
+/* Animation Constants - Centralized animation values */
+:root {
+  /* Easing functions */
+  --ease-natural: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-back: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Animation durations */
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-flip: 400ms;
+  
+  /* Stagger delays */
+  --stagger-1: 100ms;
+  --stagger-2: 200ms;
+  --stagger-3: 300ms;
+  
+  /* Modal specific */
+  --modal-duration: var(--duration-normal);
+  --modal-easing: var(--ease-natural);
+  --modal-bounce-easing: var(--ease-bounce);
+  
+  /* FLIP animation specific */
+  --flip-easing: var(--ease-natural);
+  --flip-duration: var(--duration-flip);
+  --flip-bounce-easing: var(--ease-bounce);
+}

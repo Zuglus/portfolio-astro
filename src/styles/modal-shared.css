@@ -1,10 +1,9 @@
-/* ===== ЭТАП 4.1: БАЗОВЫЕ АНИМАЦИИ МОДАЛЬНЫХ ОКОН ===== */
-/* Красивые переходы открытия/закрытия с физически правдоподобными эффектами */
+/* Shared Modal Utilities - Объединенное управление состояниями модальных окон */
 
-/* ===== ПЕРЕМЕННЫЕ ДЛЯ МОДАЛЬНЫХ АНИМАЦИЙ ===== */
 /* Импорт централизованных констант */
 @import './constants.css';
 
+/* Общие переменные для всех модальных окон */
 :root {
   /* Дополнительные easing функции для модальных окон */
   --modal-ease-exit: cubic-bezier(0.4, 0.0, 1, 1);
@@ -32,7 +31,7 @@
   opacity: 0;
   transition: 
     opacity var(--duration-normal) var(--ease-natural),
-    backdrop-filter var(--modal-duration-normal) var(--ease-natural);
+    backdrop-filter var(--duration-normal) var(--ease-natural);
   padding: 1rem;
 }
 
@@ -50,8 +49,8 @@
   opacity: 0;
   backdrop-filter: blur(0px);
   transition: 
-    opacity var(--modal-duration-fast) var(--modal-ease-exit),
-    backdrop-filter var(--modal-duration-fast) var(--modal-ease-exit);
+    opacity var(--duration-fast) var(--modal-ease-exit),
+    backdrop-filter var(--duration-fast) var(--modal-ease-exit);
 }
 
 /* Контейнер модального окна */
@@ -70,8 +69,8 @@
   opacity: 0;
   transform: scale(var(--modal-scale-initial)) translateY(var(--modal-translate-y));
   transition: 
-    opacity var(--modal-duration-normal) var(--ease-natural),
-    transform var(--modal-duration-normal) var(--ease-natural);
+    opacity var(--duration-normal) var(--ease-natural),
+    transform var(--duration-normal) var(--ease-natural);
 }
 
 .modal-container.modal-entering {
@@ -88,116 +87,38 @@
   opacity: 0;
   transform: scale(0.98) translateY(10px);
   transition: 
-    opacity var(--modal-duration-fast) var(--modal-ease-exit),
-    transform var(--modal-duration-fast) var(--modal-ease-exit);
+    opacity var(--duration-fast) var(--modal-ease-exit),
+    transform var(--duration-fast) var(--modal-ease-exit);
 }
 
 /* ===== STAGGERED АНИМАЦИИ ВНУТРЕННИХ ЭЛЕМЕНТОВ ===== */
 
-/* Заголовок модального окна */
-.modal-header {
+/* Общие классы для staggered анимаций */
+.modal-stagger-item {
   opacity: 0;
   transform: translateY(20px);
   transition: 
-    opacity var(--modal-duration-slow) var(--ease-natural),
-    transform var(--modal-duration-slow) var(--ease-natural);
-  transition-delay: calc(var(--modal-stagger-delay) * 1);
+    opacity var(--duration-slow) var(--ease-natural),
+    transform var(--duration-slow) var(--ease-natural);
 }
 
-.modal-entered .modal-header {
+.modal-entered .modal-stagger-item {
   opacity: 1;
   transform: translateY(0);
 }
 
-.modal-exiting .modal-header {
+.modal-exiting .modal-stagger-item {
   opacity: 0;
   transform: translateY(-10px);
   transition-delay: 0ms;
 }
 
-/* Контент слайдера */
-.modal-slider {
-  opacity: 0;
-  transform: translateY(30px) scale(0.98);
-  transition: 
-    opacity var(--modal-duration-slow) var(--ease-natural),
-    transform var(--modal-duration-slow) var(--ease-natural);
-  transition-delay: calc(var(--modal-stagger-delay) * 2);
-}
-
-.modal-entered .modal-slider {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.modal-exiting .modal-slider {
-  opacity: 0;
-  transform: translateY(20px) scale(0.99);
-  transition-delay: 0ms;
-}
-
-/* Изображение слайда */
-.modal-slide-image {
-  opacity: 0;
-  transform: scale(1.02);
-  transition: 
-    opacity var(--modal-duration-slow) var(--modal-ease-smooth),
-    transform var(--modal-duration-slow) var(--modal-ease-smooth);
-  transition-delay: calc(var(--modal-stagger-delay) * 3);
-}
-
-.modal-entered .modal-slide-image {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.modal-exiting .modal-slide-image {
-  opacity: 0;
-  transform: scale(1.01);
-  transition-delay: 0ms;
-}
-
-/* Кнопки навигации */
-.modal-navigation {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: 
-    opacity var(--modal-duration-slow) var(--ease-bounce),
-    transform var(--modal-duration-slow) var(--ease-bounce);
-  transition-delay: calc(var(--modal-stagger-delay) * 4);
-}
-
-.modal-entered .modal-navigation {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.modal-exiting .modal-navigation {
-  opacity: 0;
-  transform: translateY(10px);
-  transition-delay: 0ms;
-}
-
-/* Описание слайда */
-.modal-description {
-  opacity: 0;
-  transform: translateY(15px);
-  transition: 
-    opacity var(--modal-duration-slow) var(--ease-natural),
-    transform var(--modal-duration-slow) var(--ease-natural);
-  transition-delay: calc(var(--modal-stagger-delay) * 5);
-}
-
-.modal-entered .modal-description {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.modal-exiting .modal-description {
-  opacity: 0;
-  transform: translateY(5px);
-  transition-delay: 0ms;
-}
+/* Специфичные элементы с задержками */
+.modal-stagger-item:nth-child(1) { transition-delay: calc(var(--modal-stagger-delay) * 1); }
+.modal-stagger-item:nth-child(2) { transition-delay: calc(var(--modal-stagger-delay) * 2); }
+.modal-stagger-item:nth-child(3) { transition-delay: calc(var(--modal-stagger-delay) * 3); }
+.modal-stagger-item:nth-child(4) { transition-delay: calc(var(--modal-stagger-delay) * 4); }
+.modal-stagger-item:nth-child(5) { transition-delay: calc(var(--modal-stagger-delay) * 5); }
 
 /* ===== КНОПКА ЗАКРЫТИЯ ===== */
 .modal-close-button {
@@ -212,9 +133,9 @@
   opacity: 0;
   transform: scale(0.8) rotate(-90deg);
   transition: 
-    opacity var(--modal-duration-normal) var(--ease-bounce),
-    transform var(--modal-duration-normal) var(--ease-bounce),
-    background-color var(--modal-duration-fast) var(--ease-natural);
+    opacity var(--duration-normal) var(--ease-bounce),
+    transform var(--duration-normal) var(--ease-bounce),
+    background-color var(--duration-fast) var(--ease-natural);
   transition-delay: calc(var(--modal-stagger-delay) * 2);
 }
 
@@ -241,9 +162,6 @@
 /* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 768px) {
   :root {
-    --modal-duration-fast: 150ms;
-    --modal-duration-normal: 250ms;
-    --modal-duration-slow: 350ms;
     --modal-translate-y: 15px;
     --modal-stagger-delay: 30ms;
   }
@@ -263,19 +181,12 @@
 /* ===== ACCESSIBILITY ===== */
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --modal-duration-fast: 0ms;
-    --modal-duration-normal: 0ms;
-    --modal-duration-slow: 0ms;
     --modal-stagger-delay: 0ms;
   }
   
   .modal-backdrop,
   .modal-container,
-  .modal-header,
-  .modal-slider,
-  .modal-slide-image,
-  .modal-navigation,
-  .modal-description,
+  .modal-stagger-item,
   .modal-close-button {
     transition: none !important;
     animation: none !important;
@@ -310,41 +221,11 @@
   will-change: transform, opacity;
 }
 
-.modal-entered .modal-header,
-.modal-entered .modal-slider,
-.modal-entered .modal-slide-image,
-.modal-entered .modal-navigation,
-.modal-entered .modal-description {
+.modal-entered .modal-stagger-item {
   will-change: transform, opacity;
 }
 
 /* Убираем will-change после завершения анимаций */
 .modal-exited * {
   will-change: auto;
-}
-
-/* ===== ДОПОЛНИТЕЛЬНЫЕ ЭФФЕКТЫ ===== */
-
-/* Легкое свечение для кнопок навигации */
-.modal-navigation button {
-  position: relative;
-  overflow: hidden;
-}
-
-.modal-navigation button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transform: translateX(-100%);
-  transition: transform 0.6s ease;
-}
-
-.modal-navigation button:hover::before {
-  transform: translateX(100%);
-}
-
-/* Плавная анимация для прокрутки в модальном окне */
-.modal-scrollbar {
-  scroll-behavior: smooth;
 }

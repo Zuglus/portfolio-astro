@@ -1,20 +1,11 @@
 /* ===== СИСТЕМА ПЛАВНЫХ АНИМАЦИЙ ===== */
 /* Этап 3: Микровзаимодействия и плавные переходы */
 
-/* Обновленные CSS переменные */
+/* Импорт централизованных констант */
+@import './constants.css';
+
+/* Дополнительные переменные для animations.css */
 :root {
-  /* Базовые тайминги (физика движения) */
-  --animation-fast: 200ms;
-  --animation-normal: 300ms;
-  --animation-slow: 500ms;
-  --animation-very-slow: 800ms;
-  
-  /* Естественные easing функции */
-  --ease-natural: cubic-bezier(0.4, 0.0, 0.2, 1);
-  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --ease-sharp: cubic-bezier(0.55, 0.055, 0.675, 0.19);
-  
   /* Расстояния для reveal анимаций */
   --reveal-distance: 30px;
   --reveal-distance-large: 60px;
@@ -27,15 +18,15 @@
 /* ===== FADE-IN АНИМАЦИИ ===== */
 
 .animate-fade-in-container {
-  --animation-delay: 0ms;
+  --duration-delay: 0ms;
 }
 
 .animate-fade-in-container .image-wrapper {
   opacity: 0;
   transform: scale(1.02);
   transition: 
-    opacity var(--animation-slow) var(--ease-natural),
-    transform var(--animation-slow) var(--ease-natural);
+    opacity var(--duration-slow) var(--ease-natural),
+    transform var(--duration-slow) var(--ease-natural);
   transition-delay: var(--animation-delay);
 }
 
