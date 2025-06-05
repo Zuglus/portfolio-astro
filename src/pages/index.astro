@@ -19,6 +19,7 @@ import { projects } from '../data/projects';
       isModalOpen: false,
       currentProject: null,
       currentSlideIndex: 0,
+      isTransitioning: false,
       
       init() {
         this.setupEventListeners();
@@ -65,19 +66,40 @@ import { projects } from '../data/projects';
       },
       
       nextSlide() {
-        if (this.currentProject && this.currentProject.slides) {
-          const totalSlides = this.currentProject.slides.length;
-          this.currentSlideIndex = (this.currentSlideIndex + 1) % totalSlides;
-        }
+        if (this.isTransitioning || !this.currentProject || !this.currentProject.slides) return;
+        
+        this.isTransitioning = true;
+        const totalSlides = this.currentProject.slides.length;
+        this.currentSlideIndex = (this.currentSlideIndex + 1) % totalSlides;
+        
+        setTimeout(() => {
+          this.isTransitioning = false;
+        }, 300);
       },
       
       prevSlide() {
-        if (this.currentProject && this.currentProject.slides) {
-          const totalSlides = this.currentProject.slides.length;
-          this.currentSlideIndex = this.currentSlideIndex === 0 
-            ? totalSlides - 1 
-            : this.currentSlideIndex - 1;
-        }
+        if (this.isTransitioning || !this.currentProject || !this.currentProject.slides) return;
+        
+        this.isTransitioning = true;
+        const totalSlides = this.currentProject.slides.length;
+        this.currentSlideIndex = this.currentSlideIndex === 0 
+          ? totalSlides - 1 
+          : this.currentSlideIndex - 1;
+        
+        setTimeout(() => {
+          this.isTransitioning = false;
+        }, 300);
+      },
+      
+      goToSlide(index) {
+        if (this.isTransitioning || !this.currentProject || !this.currentProject.slides) return;
+        
+        this.isTransitioning = true;
+        this.currentSlideIndex = index;
+        
+        setTimeout(() => {
+          this.isTransitioning = false;
+        }, 300);
       },
       
       get currentSlide() {
@@ -134,16 +156,32 @@ import { projects } from '../data/projects';
                 />
               </div>
 
-              <div class="flex justify-center space-x-6 mb-6" x-show="currentProject?.slides?.length > 1">
+              <div class="flex justify-center items-center space-x-6 mb-6" x-show="currentProject?.slides?.length > 1">
                 <button
                   @click="prevSlide()"
-                  class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer active:scale-95 transform md:w-[3rem] md:h-[3rem] md:text-5xl"
+                  :disabled="isTransitioning"
+                  class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer transform md:w-[3rem] md:h-[3rem] md:text-5xl select-none"
+                  :class="{ 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-white': isTransitioning }"
                   aria-label="Предыдущий слайд"
                 >&larr;</button>
 
+                <div class="flex space-x-2">
+                  <template x-for="(slide, index) in currentProject?.slides || []" :key="index">
+                    <button
+                      @click="goToSlide(index)"
+                      :disabled="isTransitioning"
+                      class="w-3 h-3 rounded-full border border-white/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 select-none"
+                      :class="currentSlideIndex === index ? 'bg-white' : 'bg-white/20 hover:bg-white/40'"
+                      :aria-label="`Перейти к слайду ${index + 1}`"
+                    ></button>
+                  </template>
+                </div>
+
                 <button
                   @click="nextSlide()"
-                  class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer active:scale-95 transform md:w-[3rem] md:h-[3rem] md:text-5xl"
+                  :disabled="isTransitioning"
+                  class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer transform md:w-[3rem] md:h-[3rem] md:text-5xl select-none"
+                  :class="{ 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-white': isTransitioning }"
                   aria-label="Следующий слайд"
                 >&rarr;</button>
               </div>
