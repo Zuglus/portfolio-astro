@@ -50,9 +50,27 @@ const {
         user-select: none;
       }
       
+      /* Shimmer анимация для скелетона */
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+      
+      .animate-shimmer {
+        animation: shimmer 2s infinite;
+      }
+      
       @media (prefers-reduced-motion: reduce) {
         * {
           transition: none !important;
+          animation: none !important;
+        }
+        
+        .animate-shimmer {
           animation: none !important;
         }
       }
