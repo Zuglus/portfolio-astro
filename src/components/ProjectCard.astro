@@ -15,166 +15,14 @@ const { project, index = 0 } = Astro.props;
   aria-label={`Открыть проект: ${project.alt}`}
   data-testid="portfolio-card"
   data-project-id={project.id}
-  data-flip-id={`card-${project.id}`}
   x-data={`{
-    isFlipAnimating: false,
-    rippleTimer: null,
-    restoreTimer: null,
-    
-    init() {
-      // Добавляем уникальный идентификатор для FLIP анимации
-      this.$el.setAttribute('data-flip-source', '${project.id}');
-      
-      // Убеждаемся, что элемент видим при инициализации
-      this.ensureVisible();
-    },
-    
-    ensureVisible() {
-      // Принудительно убираем все скрывающие стили
-      this.$el.style.removeProperty('opacity');
-      this.$el.style.removeProperty('visibility');
-      this.$el.style.removeProperty('transform');
-      this.$el.classList.remove('flip-preparing', 'flip-animating', 'flip-click-effect');
-      
-      console.log('Карточка инициализирована и видима:', this.$el);
-    },
-    
-    async handleClick() {
-      if (this.isFlipAnimating) {
-        console.log('FLIP анимация уже выполняется, игнорируем клик');
-        return;
-      }
-      
-      try {
-        console.log('Начинаем обработку клика на карточку:', '${project.id}');
-        this.isFlipAnimating = true;
-        
-        // Очищаем предыдущие таймеры
-        clearTimeout(this.rippleTimer);
-        clearTimeout(this.restoreTimer);
-        
-        // Убеждаемся что элемент видим перед началом анимации
-        this.ensureVisible();
-        
-        // Добавляем ripple эффект
-        this.addRippleEffect();
-        
-        // Подготавливаем карточку к FLIP анимации
-        this.$el.classList.add('flip-preparing');
-        
-        // Небольшая задержка для подготовки
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
-        // Запускаем FLIP анимацию через глобальное событие
-        const flipEvent = new CustomEvent('flip-open-modal', { 
-          detail: { 
-            projectId: '${project.id}',
-            sourceElement: this.$el,
-            cardIndex: ${index}
-          } 
-        });
-        
-        console.log('Отправляем событие FLIP открытия');
-        document.dispatchEvent(flipEvent);
-        
-      } catch (error) {
-        console.warn('Ошибка при запуске FLIP анимации:', error);
-        
-        // Восстанавливаем состояние при ошибке
-        this.forceRestoreState();
-        
-        // Fallback к обычному открытию
-        document.dispatchEvent(new CustomEvent('open-modal', { 
-          detail: { projectId: '${project.id}' } 
-        }));
-      }
-    },
-    
-    addRippleEffect() {
-      // Убираем предыдущий эффект если есть
-      this.$el.classList.remove('flip-click-effect');
-      
-      // Добавляем новый эффект
-      this.$nextTick(() => {
-        this.$el.classList.add('flip-click-effect');
-        
-        // Убираем эффект через время
-        clearTimeout(this.rippleTimer);
-        this.rippleTimer = setTimeout(() => {
-          this.$el.classList.remove('flip-click-effect');
-        }, 600);
-      });
-    },
-    
-    forceRestoreState() {
-      console.log('Принудительное восстановление состояния карточки');
-      
-      // Сбрасываем флаг анимации
-      this.isFlipAnimating = false;
-      
-      // Очищаем все таймеры
-      clearTimeout(this.rippleTimer);
-      clearTimeout(this.restoreTimer);
-      
-      // Убираем все FLIP классы
-      this.$el.classList.remove('flip-preparing', 'flip-animating', 'flip-click-effect');
-      
-      // Принудительно восстанавливаем видимость
-      this.$el.style.removeProperty('opacity');
-      this.$el.style.removeProperty('visibility');
-      this.$el.style.removeProperty('transform');
-      this.$el.style.removeProperty('transition');
-      
-      // Используем встроенную утилиту из FLIP контроллера
-      if (window.flipUtils) {
-        window.flipUtils.forceRestoreElement(this.$el);
-      }
-      
-      // Принудительный reflow
-      this.$el.offsetHeight;
-      
-      console.log('Состояние карточки восстановлено');
-    },
-    
-    resetFlipState() {
-      console.log('Сброс состояния FLIP для карточки');
-      
-      this.isFlipAnimating = false;
-      
-      // Убираем классы состояний
-      this.$el.classList.remove('flip-preparing', 'flip-animating', 'flip-click-effect');
-      
-      // Добавляем класс завершения для плавного восстановления
-      this.$el.classList.add('flip-completed');
-      
-      // Убираем класс завершения через короткое время
-      clearTimeout(this.restoreTimer);
-      this.restoreTimer = setTimeout(() => {
-        this.$el.classList.remove('flip-completed');
-        
-        // Дополнительная проверка видимости
-        this.ensureVisible();
-        
-        console.log('FLIP состояние полностью сброшено');
-      }, 300);
-    },
-    
-    // Слушаем событие завершения FLIP анимации
-    onFlipComplete() {
-      console.log('Получено событие завершения FLIP анимации');
-      this.resetFlipState();
-    },
-    
-    // Обработка ошибок при уничтожении компонента
-    destroy() {
-      clearTimeout(this.rippleTimer);
-      clearTimeout(this.restoreTimer);
-      this.forceRestoreState();
+    handleClick() {
+      document.dispatchEvent(new CustomEvent('open-modal', { 
+        detail: { projectId: '${project.id}' } 
+      }));
     }
   }`}
   x-on:click="handleClick()"
-  x-on:flip-animation-complete.window="onFlipComplete()"
-  x-on:beforedestroy="destroy()"
 >
   <div class="w-full group-hover:scale-105 transition-transform duration-300">
     <img 
@@ -191,20 +39,24 @@ const { project, index = 0 } = Astro.props;
 </button>
 
 <style>
-  /* Базовые стили карточки */
   .portfolio-card {
-    /* Подготовка к анимации */
-    will-change: auto;
-    transform: translateZ(0); /* Force GPU layer */
-    
-    /* КРИТИЧНО: убираем любые стили которые могут скрыть элемент */
-    opacity: 1 !important;
-    visibility: visible !important;
+    transform: translateZ(0);
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
   }
   
   .portfolio-card:hover {
-    /* Предварительная подготовка к возможной анимации */
-    will-change: transform, opacity;
+    will-change: transform;
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .portfolio-card:active {
+    transform: translateY(-4px) scale(1.01);
+    transition-duration: 150ms;
   }
   
   /* Ripple эффект при клике */
@@ -216,98 +68,74 @@ const { project, index = 0 } = Astro.props;
     width: 0;
     height: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2);
     transform: translate(-50%, -50%);
-    transition: width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1), 
-                height 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: width 0.4s ease-out, height 0.4s ease-out, opacity 0.4s ease-out;
     pointer-events: none;
     z-index: 1;
     opacity: 0;
   }
   
-  .portfolio-card.flip-click-effect::before {
+  .portfolio-card:active::before {
     width: 120%;
     height: 120%;
     opacity: 1;
   }
   
-  /* Состояния FLIP анимации */
-  .portfolio-card.flip-preparing {
-    will-change: transform, opacity;
-    transform: translateZ(0);
-    /* НЕ скрываем элемент на этапе подготовки */
-    opacity: 1 !important;
-    visibility: visible !important;
+  /* Анимация изображения */
+  .portfolio-card img {
+    transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .portfolio-card.flip-animating {
-    /* Скрытие происходит через JavaScript, не через CSS */
-    will-change: transform, opacity;
+  .portfolio-card:hover img {
+    transform: scale(1.08);
   }
   
-  .portfolio-card.flip-completed {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: scale(1) translateZ(0);
-    will-change: auto;
-    transition: 
-      opacity 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
-      transform 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* Градиентный overlay при hover */
+  .portfolio-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+    opacity: 0;
+    transition: opacity 300ms ease;
+    pointer-events: none;
+    z-index: 2;
   }
   
-  /* Принудительное восстановление видимости */
-  .portfolio-card.force-visible {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-    transition: none !important;
+  .portfolio-card:hover::after {
+    opacity: 1;
   }
   
-  /* Оптимизация для мобильных */
-  @media (max-width: 768px) {
-    .portfolio-card::before {
-      transition-duration: 0.4s;
-    }
+  /* Accessibility */
+  .portfolio-card:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 4px;
+    transform: translateY(-4px) scale(1.01);
   }
   
-  /* Отключение эффектов при reduce motion */
+  /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .portfolio-card::before {
+    .portfolio-card,
+    .portfolio-card::before,
+    .portfolio-card::after,
+    .portfolio-card img {
       transition: none !important;
       animation: none !important;
     }
     
-    .portfolio-card.flip-click-effect::before {
-      width: 0 !important;
-      height: 0 !important;
-      opacity: 0 !important;
-    }
-    
-    /* Убираем все FLIP анимации */
-    .portfolio-card.flip-preparing,
-    .portfolio-card.flip-animating,
-    .portfolio-card.flip-completed {
-      opacity: 1 !important;
-      visibility: visible !important;
+    .portfolio-card:hover,
+    .portfolio-card:active,
+    .portfolio-card:focus-visible {
       transform: none !important;
-      transition: none !important;
     }
-  }
-  
-  /* Отладочные стили (можно включить для диагностики) */
-  .flip-debug .portfolio-card {
-    outline: 2px solid rgba(0, 255, 0, 0.5);
-  }
-  
-  .flip-debug .portfolio-card.flip-preparing {
-    outline: 2px solid rgba(255, 255, 0, 0.5);
-  }
-  
-  .flip-debug .portfolio-card.flip-animating {
-    outline: 2px solid rgba(255, 0, 0, 0.5);
-  }
-  
-  .flip-debug .portfolio-card.flip-completed {
-    outline: 2px solid rgba(0, 0, 255, 0.5);
   }
 </style>

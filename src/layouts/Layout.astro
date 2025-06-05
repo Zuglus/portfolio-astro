@@ -1,11 +1,7 @@
 ---
 import '../styles/global.css';
 import '../styles/constants.css';
-import '../styles/loading-states.css';
-import '../styles/shimmer.css';
-import '../styles/image-animations.css';
-import '../styles/enhanced-modal-transitions.css';
-import '../styles/error-handling.css';
+import '../styles/modal-animations.css';
 
 export interface Props {
     title: string;
@@ -22,6 +18,7 @@ const {
 <html lang="ru" class="bg-primary">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Полина Мигранова" />
@@ -36,17 +33,24 @@ const {
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     
-    <!-- Preload критических шрифтов -->
-    <link rel="preload" href="/src/assets/fonts/MV-SKIFER.otf" as="font" type="font/otf" crossorigin />
-    <link rel="preload" href="/src/assets/fonts/Onest-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <!-- Шрифты будут загружены через CSS -->
+    <!-- <link rel="preload" href="/fonts/MV-SKIFER.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/Onest-Regular.ttf" as="font" type="font/ttf" crossorigin /> -->
     
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
   <body class="bg-primary text-white font-onest">
     <slot />
+    <script>
+      import Alpine from 'alpinejs';
+      window.Alpine = Alpine;
+      
+      // Ждем загрузки DOM перед инициализацией Alpine.js
+      document.addEventListener('DOMContentLoaded', () => {
+        Alpine.start();
+      });
+    </script>
   </body>
 </html>

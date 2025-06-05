@@ -1,0 +1,184 @@
+/* Красивые анимации для модальных окон */
+
+/* Backdrop анимации */
+.modal-backdrop {
+  backdrop-filter: blur(0px);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-backdrop.show {
+  backdrop-filter: blur(8px);
+}
+
+/* Модальное окно - основные анимации */
+.modal-content {
+  transform: scale(0.95) translateY(20px);
+  opacity: 0;
+  transition: all 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-content.show {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* Анимация появления с bounce эффектом */
+@keyframes modalEnter {
+  0% {
+    transform: scale(0.7) translateY(-50px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) translateY(10px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Анимация исчезания */
+@keyframes modalExit {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8) translateY(30px);
+    opacity: 0;
+  }
+}
+
+/* Классы для анимаций */
+.modal-entering {
+  animation: modalEnter 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.modal-exiting {
+  animation: modalExit 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Анимации слайдов */
+.slide-container {
+  transition: all 300ms ease-in-out;
+}
+
+.slide-entering {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.slide-active {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.slide-exiting {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Кнопки навигации - hover эффекты */
+.nav-button {
+  transform: scale(1);
+  transition: all 200ms ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.nav-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.nav-button:active {
+  transform: scale(0.95);
+}
+
+/* Кнопка закрытия */
+.close-button {
+  transform: rotate(0deg);
+  transition: all 200ms ease-in-out;
+}
+
+.close-button:hover {
+  transform: rotate(90deg) scale(1.1);
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Плавный скролл для содержимого модального окна */
+.modal-scrollbar {
+  scroll-behavior: smooth;
+}
+
+.modal-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  transition: background 200ms ease;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Анимация загрузки изображений */
+.image-loading {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Responsive анимации */
+@media (max-width: 768px) {
+  .modal-content {
+    transform: scale(0.9) translateY(30px);
+  }
+  
+  @keyframes modalEnter {
+    0% {
+      transform: scale(0.8) translateY(-30px);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* Accessibility - уменьшенные анимации */
+@media (prefers-reduced-motion: reduce) {
+  .modal-content,
+  .modal-backdrop,
+  .nav-button,
+  .close-button {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .modal-entering,
+  .modal-exiting {
+    animation: none !important;
+  }
+}
