@@ -1,0 +1,142 @@
+/* CSS утилиты для состояний загрузки */
+
+/* Базовые классы для состояний */
+.loading-state-idle {
+  opacity: var(--opacity-idle);
+  transform: scale(var(--scale-idle));
+  transition: opacity var(--loading-duration) var(--ease-natural),
+              transform var(--loading-duration) var(--ease-natural);
+}
+
+.loading-state-loading {
+  opacity: var(--opacity-loading);
+  transform: scale(var(--scale-loading));
+  filter: blur(var(--blur-loading));
+  transition: opacity var(--loading-duration) var(--ease-natural),
+              transform var(--loading-duration) var(--ease-natural),
+              filter var(--loading-duration) var(--ease-natural);
+}
+
+.loading-state-loaded {
+  opacity: var(--opacity-loaded);
+  transform: scale(var(--scale-loaded));
+  filter: blur(var(--blur-loaded));
+  transition: opacity var(--loading-duration) var(--ease-natural),
+              transform var(--loading-duration) var(--ease-natural),
+              filter var(--loading-duration) var(--ease-natural);
+}
+
+.loading-state-error {
+  opacity: var(--opacity-error);
+  transform: scale(var(--scale-error));
+  transition: opacity var(--loading-duration) var(--ease-natural),
+              transform var(--loading-duration) var(--ease-natural);
+}
+
+/* Data-атрибуты селекторы для автоматического применения стилей */
+[data-loading-state="idle"] .image-element {
+  @apply loading-state-idle;
+}
+
+[data-loading-state="loading"] .image-element {
+  @apply loading-state-loading;
+}
+
+[data-loading-state="loaded"] .image-element {
+  @apply loading-state-loaded;
+}
+
+[data-loading-state="error"] .image-element {
+  @apply loading-state-error;
+}
+
+/* Стили для контейнеров изображений */
+.image-container {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.image-wrapper {
+  position: relative;
+  z-index: var(--z-image);
+}
+
+.image-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  backface-visibility: hidden;
+  will-change: opacity, transform, filter;
+}
+
+/* Stagger анимации для группы изображений */
+.stagger-container .image-container:nth-child(1) {
+  animation-delay: calc(var(--stagger-base) * 1);
+}
+
+.stagger-container .image-container:nth-child(2) {
+  animation-delay: calc(var(--stagger-base) * 2);
+}
+
+.stagger-container .image-container:nth-child(3) {
+  animation-delay: calc(var(--stagger-base) * 3);
+}
+
+.stagger-container .image-container:nth-child(4) {
+  animation-delay: calc(var(--stagger-base) * 4);
+}
+
+.stagger-container .image-container:nth-child(5) {
+  animation-delay: calc(var(--stagger-base) * 5);
+}
+
+.stagger-container .image-container:nth-child(6) {
+  animation-delay: calc(var(--stagger-base) * 6);
+}
+
+/* Индикаторы состояния загрузки (опционально) */
+.loading-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: var(--z-overlay);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: all var(--duration-fast) var(--ease-natural);
+}
+
+[data-loading-state="idle"] .loading-indicator {
+  background-color: var(--color-skeleton);
+  opacity: 0;
+}
+
+[data-loading-state="loading"] .loading-indicator {
+  background-color: var(--color-loading);
+  opacity: 1;
+  animation: pulse var(--shimmer-duration) ease-in-out infinite;
+}
+
+[data-loading-state="loaded"] .loading-indicator {
+  background-color: var(--color-loaded);
+  opacity: 1;
+  animation: none;
+}
+
+[data-loading-state="error"] .loading-indicator {
+  background-color: var(--color-error);
+  opacity: 1;
+  animation: pulse var(--duration-slow) ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.5; 
+    transform: scale(1.1); 
+  }
+}

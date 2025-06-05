@@ -1,39 +1,145 @@
 ---
+import SkeletonCard from './SkeletonCard.astro';
+import SkeletonLoader from './SkeletonLoader.astro';
+
 interface Props {
   /** Количество скелетонов */
   count?: number;
   /** Задержка между анимациями */
   stagger?: number;
+  /** Тип скелетона */
+  type?: 'card' | 'loader';
   /** Общие пропсы для всех скелетонов */
   skeletonProps?: Record<string, any>;
   /** Направление stagger эффекта */
-  direction?: 'row' | 'column';
+  direction?: 'row' | 'column' | 'grid';
   /** Кастомный класс контейнера */
   containerClass?: string;
+  /** Вариант скелетона для карточек */
+  variant?: 'project' | 'modal' | 'grid';
 }
 
 const {
   count = 3,
   stagger = 0.1,
+  type = 'loader',
   skeletonProps = {},
   direction = 'column',
   containerClass = '',
+  variant = 'project',
 } = Astro.props;
 
-import SkeletonLoader from './SkeletonLoader.astro';
-
 const containerClasses = {
-  row: 'flex flex-row gap-4',
+  row: 'flex flex-row gap-4 items-start',
   column: 'flex flex-col gap-2',
+  grid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
 };
+
+// Используем CSS переменные для stagger
+const staggerDelay = stagger * 1000; // конвертируем в ms
 ---
 
-<div class:list={[containerClasses[direction], containerClass]}>
-  {Array.from({ length: count }, (_, index) => (
-    <SkeletonLoader 
-      {...skeletonProps}
-      delay={index * stagger}
-      key={index}
-    />
-  ))}
+<div 
+  class:list={[
+    'skeleton-group stagger-container',
+    containerClasses[direction], 
+    containerClass
+  ]}
+  style={`--stagger-delay: ${staggerDelay}ms;`}
+  role="group"
+  aria-label={`Загрузка ${count} элементов`}
+>
+  {Array.from({ length: count }, (_, index) => {
+    const delay = index * stagger;
+    
+    if (type === 'card') {
+      return (
+        <SkeletonCard 
+          {...skeletonProps}
+          variant={variant}
+          className={`skeleton-item-${index}`}
+          style={`animation-delay: ${delay}s;`}
+        />
+      );
+    } else {
+      return (
+        <SkeletonLoader 
+          {...skeletonProps}
+          delay={delay}
+          className={`skeleton-item-${index}`}
+        />
+      );
+    }
+  })}
 </div>
+
+<style>
+  .skeleton-group {
+    /* Базовые стили для групп скелетонов */
+    opacity: 0;
+    animation: skeleton-group-fade-in var(--duration-slow) var(--ease-natural) forwards;
+  }
+  
+  /* Stagger анимация входа */
+  .stagger-container .skeleton-item-0 {
+    animation-delay: calc(var(--stagger-delay) * 0);
+  }
+  
+  .stagger-container .skeleton-item-1 {
+    animation-delay: calc(var(--stagger-delay) * 1);
+  }
+  
+  .stagger-container .skeleton-item-2 {
+    animation-delay: calc(var(--stagger-delay) * 2);
+  }
+  
+  .stagger-container .skeleton-item-3 {
+    animation-delay: calc(var(--stagger-delay) * 3);
+  }
+  
+  .stagger-container .skeleton-item-4 {
+    animation-delay: calc(var(--stagger-delay) * 4);
+  }
+  
+  .stagger-container .skeleton-item-5 {
+    animation-delay: calc(var(--stagger-delay) * 5);
+  }
+  
+  @keyframes skeleton-group-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Адаптивные сетки */
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+  }
+  
+  /* Поддержка prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-group {
+      animation: none;
+      opacity: 1;
+    }
+    
+    .stagger-container [class*="skeleton-item-"] {
+      animation-delay: 0s !important;
+    }
+  }
+</style>

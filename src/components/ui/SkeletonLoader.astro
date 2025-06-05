@@ -58,15 +58,17 @@ const inlineStyles = {
 
 <style>
   .skeleton-loader {
-    --skeleton-base-color: rgba(229, 231, 235, 0.3);
+    --skeleton-base-color: var(--color-skeleton);
     --skeleton-shimmer-color: rgba(255, 255, 255, 0.4);
-    --skeleton-animation-timing: cubic-bezier(0.4, 0.0, 0.2, 1);
+    --skeleton-animation-timing: var(--ease-natural);
+    --skeleton-duration: var(--shimmer-duration);
     
     background-color: var(--skeleton-base-color);
     position: relative;
     isolation: isolate;
-    /* Убираем дополнительные размеры */
+    z-index: var(--z-skeleton);
     box-sizing: border-box;
+    will-change: transform, opacity;
   }
 
   .skeleton-shimmer-overlay {
@@ -83,7 +85,7 @@ const inlineStyles = {
       transparent 100%
     );
     transform: translateX(-100%);
-    animation: skeleton-shimmer var(--skeleton-duration, 1.5s) var(--skeleton-animation-timing) infinite;
+    animation: skeleton-shimmer var(--skeleton-duration) var(--skeleton-animation-timing) infinite;
     z-index: 1;
   }
 

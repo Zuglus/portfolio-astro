@@ -12,10 +12,45 @@
   --duration-slow: 500ms;
   --duration-flip: 400ms;
   
+  /* Loading state specific durations */
+  --loading-duration: var(--duration-normal);
+  --shimmer-duration: 1500ms;
+  --shimmer-delay: 200ms;
+  
   /* Stagger delays */
   --stagger-1: 100ms;
   --stagger-2: 200ms;
   --stagger-3: 300ms;
+  --stagger-base: 50ms;
+  --stagger-increment: 75ms;
+  
+  /* Loading state properties */
+  --opacity-idle: 0;
+  --opacity-loading: 0.7;
+  --opacity-loaded: 1;
+  --opacity-error: 0.5;
+  
+  /* Blur effects for progressive loading */
+  --blur-loading: 4px;
+  --blur-loaded: 0px;
+  
+  /* Scale effects */
+  --scale-idle: 0.95;
+  --scale-loading: 0.98;
+  --scale-loaded: 1;
+  --scale-error: 0.96;
+  
+  /* Z-index layers for loading states */
+  --z-skeleton: 5;
+  --z-image: 10;
+  --z-overlay: 100;
+  --z-modal: 1000;
+  
+  /* Colors for loading states */
+  --color-skeleton: rgb(229 231 235);
+  --color-loading: rgb(156 163 175);
+  --color-loaded: rgb(34 197 94);
+  --color-error: rgb(239 68 68);
   
   /* Modal specific */
   --modal-duration: var(--duration-normal);

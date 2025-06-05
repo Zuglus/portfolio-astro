@@ -1,29 +1,169 @@
 ---
+import SkeletonLoader from './SkeletonLoader.astro';
+
 interface Props {
-  /** Дополнительные CSS классы */
   className?: string;
+  variant?: 'project' | 'modal' | 'grid';
+  showDetails?: boolean;
+  aspectRatio?: string;
+  shimmerIntensity?: 'subtle' | 'normal' | 'intense';
 }
 
 const {
   className = '',
+  variant = 'project',
+  showDetails = false,
+  aspectRatio = 'auto',
+  shimmerIntensity = 'normal',
 } = Astro.props;
-
-import SkeletonLoader from './SkeletonLoader.astro';
 
 // Используем точно те же классы, что и в оригинальных карточках
 const cardContainerClass = 'bg-white/5 hover:shadow-lg rounded-[1.875rem] md:rounded-[1.25rem] transition-all hover:-translate-y-2 duration-300 cursor-pointer overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 group';
+
+const containerClasses = {
+  project: cardContainerClass,
+  modal: 'w-full h-full bg-transparent',
+  grid: 'w-full bg-white/5 rounded-lg overflow-hidden',
+};
+
+const imageStyles = {
+  project: 'aspect-auto',
+  modal: 'aspect-video',
+  grid: 'aspect-square',
+};
 ---
 
-<div class:list={[cardContainerClass, className]}>
-  <!-- Изображение с точным aspect ratio оригинальных карточек -->
-  <div class="w-full">
+<div 
+  class:list={[containerClasses[variant], className]}
+  role="img" 
+  aria-label="Загрузка карточки проекта"
+  style={aspectRatio !== 'auto' ? `aspect-ratio: ${aspectRatio};` : ''}
+>
+  <!-- Основное изображение -->
+  <div class="skeleton-image-container relative w-full">
     <SkeletonLoader 
       width="100%" 
       height="100%" 
       variant="rectangular"
-      shimmerIntensity="subtle"
-      duration={2}
-      className="aspect-auto"
+      shimmerIntensity={shimmerIntensity}
+      duration={1.8}
+      className={imageStyles[variant]}
     />
+    
+    <!-- Overlay элементы для имитации кнопок/иконок -->
+    {variant === 'project' && (
+      <div class="absolute top-3 right-3 opacity-60">
+        <SkeletonLoader 
+          width="24px" 
+          height="24px" 
+          variant="circle"
+          shimmerIntensity="subtle"
+          duration={2.1}
+          delay={0.3}
+        />
+      </div>
+    )}
   </div>
+
+  <!-- Детали карточки -->
+  {showDetails && variant !== 'modal' && (
+    <div class="skeleton-details p-4 space-y-3">
+      <!-- Заголовок -->
+      <div class="skeleton-title">
+        <SkeletonLoader 
+          width="80%" 
+          height="20px" 
+          variant="text"
+          shimmerIntensity="normal"
+          duration={2.2}
+          delay={0.5}
+        />
+      </div>
+      
+      <!-- Подзаголовок -->
+      <div class="skeleton-subtitle">
+        <SkeletonLoader 
+          width="60%" 
+          height="16px" 
+          variant="text"
+          shimmerIntensity="subtle"
+          duration={2.5}
+          delay={0.7}
+        />
+      </div>
+      
+      <!-- Описание (2-3 строки) -->
+      <div class="skeleton-description space-y-2">
+        <SkeletonLoader 
+          width="100%" 
+          height="14px" 
+          variant="text"
+          shimmerIntensity="subtle"
+          duration={2.3}
+          delay={0.9}
+        />
+        <SkeletonLoader 
+          width="85%" 
+          height="14px" 
+          variant="text"
+          shimmerIntensity="subtle"
+          duration={2.4}
+          delay={1.1}
+        />
+        <SkeletonLoader 
+          width="70%" 
+          height="14px" 
+          variant="text"
+          shimmerIntensity="subtle"
+          duration={2.6}
+          delay={1.3}
+        />
+      </div>
+    </div>
+  )}
 </div>
+
+<style>
+  .skeleton-image-container {
+    background: linear-gradient(
+      135deg,
+      var(--color-skeleton) 0%,
+      rgba(229, 231, 235, 0.5) 50%,
+      var(--color-skeleton) 100%
+    );
+  }
+  
+  /* Легкая пульсация для карточки проекта */
+  .group {
+    animation: skeleton-card-pulse 3s ease-in-out infinite;
+  }
+  
+  @keyframes skeleton-card-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    50% {
+      opacity: 0.95;
+      transform: scale(0.998) translateY(-1px);
+    }
+  }
+  
+  /* Адаптивные изменения */
+  @media (max-width: 768px) {
+    .skeleton-details {
+      padding: 0.75rem;
+    }
+    
+    .skeleton-description {
+      gap: 0.375rem;
+    }
+  }
+  
+  /* Поддержка prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .group {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,347 @@
+/* Стили для обработки ошибок и fallback состояний */
+
+/* === БАЗОВЫЕ ОШИБКИ === */
+.image-error-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 150px;
+  background: linear-gradient(
+    135deg,
+    rgba(229, 231, 235, 0.8) 0%,
+    rgba(209, 213, 219, 0.6) 100%
+  );
+  border: 2px dashed rgba(156, 163, 175, 0.4);
+  border-radius: var(--border-radius);
+  transition: all var(--duration-normal) var(--ease-natural);
+}
+
+.image-error-content {
+  text-align: center;
+  padding: 1rem;
+  color: rgba(107, 114, 128, 0.8);
+}
+
+.image-error-icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 0.5rem;
+  opacity: 0.6;
+  transition: opacity var(--duration-normal) var(--ease-natural);
+}
+
+.image-error-text {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.image-error-fallback:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(229, 231, 235, 0.9) 0%,
+    rgba(209, 213, 219, 0.8) 100%
+  );
+  border-color: rgba(156, 163, 175, 0.6);
+}
+
+.image-error-fallback:hover .image-error-icon {
+  opacity: 0.8;
+}
+
+/* === УВЕДОМЛЕНИЯ ОБ ОШИБКАХ === */
+.error-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  padding: 1rem;
+  z-index: 10000;
+  max-width: 400px;
+  border-left: 4px solid;
+  animation: slideInRight 300ms var(--ease-natural);
+  will-change: transform, opacity;
+}
+
+.error-notification.info {
+  border-left-color: rgb(59, 130, 246);
+  background: linear-gradient(to right, rgba(59, 130, 246, 0.05), white);
+}
+
+.error-notification.warning {
+  border-left-color: rgb(245, 158, 11);
+  background: linear-gradient(to right, rgba(245, 158, 11, 0.05), white);
+}
+
+.error-notification.success {
+  border-left-color: rgb(34, 197, 94);
+  background: linear-gradient(to right, rgba(34, 197, 94, 0.05), white);
+}
+
+.error-notification.error {
+  border-left-color: rgb(239, 68, 68);
+  background: linear-gradient(to right, rgba(239, 68, 68, 0.05), white);
+}
+
+.error-notification-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.error-notification-message {
+  flex: 1;
+  line-height: 1.5;
+  color: rgb(55, 65, 81);
+}
+
+.error-notification-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 1.125rem;
+  cursor: pointer;
+  color: rgb(107, 114, 128);
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all var(--duration-fast) var(--ease-natural);
+}
+
+.error-notification-close:hover {
+  background: rgba(107, 114, 128, 0.1);
+  color: rgb(55, 65, 81);
+}
+
+/* === OFFLINE РЕЖИМ === */
+.offline-mode {
+  position: relative;
+}
+
+.offline-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgb(245, 158, 11) 0%,
+    rgb(251, 191, 36) 50%,
+    rgb(245, 158, 11) 100%
+  );
+  z-index: 9999;
+  animation: offline-pulse 2s ease-in-out infinite;
+}
+
+.offline-mode .image-error-fallback {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.1) 0%,
+    rgba(251, 191, 36, 0.05) 100%
+  );
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.offline-mode .image-error-content {
+  color: rgb(245, 158, 11);
+}
+
+/* === RETRY СОСТОЯНИЯ === */
+.image-retry-loading {
+  position: relative;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.image-retry-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: retry-spinner 1s linear infinite;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  border-radius: 50%;
+}
+
+/* === СОСТОЯНИЯ СЕТИ === */
+.network-slow .image-error-fallback {
+  background: linear-gradient(
+    135deg,
+    rgba(156, 163, 175, 0.6) 0%,
+    rgba(209, 213, 219, 0.4) 100%
+  );
+}
+
+.network-slow .image-error-text::after {
+  content: ' (медленное соединение)';
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* === АНИМАЦИИ === */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes offline-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes retry-spinner {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* === АДАПТИВНОСТЬ === */
+@media (max-width: 768px) {
+  .error-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    margin: 0;
+  }
+  
+  .image-error-fallback {
+    min-height: 120px;
+  }
+  
+  .image-error-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  .image-error-text {
+    font-size: 0.8125rem;
+  }
+}
+
+/* === ACCESSIBILITY === */
+@media (prefers-reduced-motion: reduce) {
+  .error-notification {
+    animation: none;
+  }
+  
+  .offline-mode::before {
+    animation: none;
+  }
+  
+  .image-retry-loading::after {
+    animation: retry-spinner 2s linear infinite;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .image-error-fallback {
+    background: white;
+    border-color: rgb(107, 114, 128);
+    border-width: 3px;
+  }
+  
+  .image-error-content {
+    color: rgb(17, 24, 39);
+  }
+  
+  .error-notification {
+    border-left-width: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* === ТЕМНАЯ ТЕМА === */
+@media (prefers-color-scheme: dark) {
+  .image-error-fallback {
+    background: linear-gradient(
+      135deg,
+      rgba(55, 65, 81, 0.8) 0%,
+      rgba(75, 85, 99, 0.6) 100%
+    );
+    border-color: rgba(156, 163, 175, 0.3);
+  }
+  
+  .image-error-content {
+    color: rgba(209, 213, 219, 0.8);
+  }
+  
+  .error-notification {
+    background: rgb(31, 41, 55);
+    color: rgb(229, 231, 235);
+  }
+  
+  .error-notification-message {
+    color: rgb(229, 231, 235);
+  }
+  
+  .error-notification-close {
+    color: rgb(156, 163, 175);
+  }
+  
+  .error-notification-close:hover {
+    background: rgba(156, 163, 175, 0.2);
+    color: rgb(209, 213, 219);
+  }
+}
+
+/* === DEBUG РЕЖИМ === */
+.debug-errors .image-error-fallback::before {
+  content: attr(data-error-details);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-family: monospace;
+  z-index: 1;
+}
+
+/* === ПРОИЗВОДИТЕЛЬНОСТЬ === */
+.error-notification,
+.image-error-fallback,
+.image-retry-loading::after {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* GPU acceleration для критических анимаций */
+.error-notification {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.offline-mode::before {
+  will-change: opacity;
+  transform: translateZ(0);
+}

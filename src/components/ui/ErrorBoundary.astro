@@ -1,0 +1,395 @@
+---
+interface Props {
+  /** Кастомное сообщение об ошибке */
+  errorMessage?: string;
+  /** Показывать ли кнопку повторной попытки */
+  showRetry?: boolean;
+  /** Показывать ли детали ошибки */
+  showDetails?: boolean;
+  /** Кастомный класс */
+  className?: string;
+  /** Callback для повторной попытки */
+  onRetry?: string;
+  /** Тип ошибки для разных стилей */
+  errorType?: 'network' | 'loading' | 'general';
+}
+
+const {
+  errorMessage = 'Что-то пошло не так',
+  showRetry = true,
+  showDetails = false,
+  className = '',
+  onRetry = 'window.location.reload()',
+  errorType = 'general'
+} = Astro.props;
+
+const errorTypeClasses = {
+  network: 'error-boundary-network',
+  loading: 'error-boundary-loading', 
+  general: 'error-boundary-general'
+};
+
+const errorTypeIcons = {
+  network: `
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+    </svg>
+  `,
+  loading: `
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  `,
+  general: `
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+    </svg>
+  `
+};
+---
+
+<div 
+  class:list={[
+    'error-boundary',
+    errorTypeClasses[errorType],
+    className
+  ]}
+  x-data={`{
+    isRetrying: false,
+    retryCount: 0,
+    maxRetries: 3,
+    showDetails: ${showDetails},
+    lastError: null,
+    
+    async retry() {
+      if (this.isRetrying || this.retryCount >= this.maxRetries) return;
+      
+      this.isRetrying = true;
+      this.retryCount++;
+      
+      try {
+        // Показываем индикатор загрузки
+        this.$el.classList.add('error-retrying');
+        
+        // Выполняем retry callback
+        ${onRetry ? `await (${onRetry})();` : 'window.location.reload();'}
+        
+        // Если успешно, скрываем error boundary
+        this.$el.classList.add('error-resolved');
+        setTimeout(() => {
+          this.$el.style.display = 'none';
+        }, 300);
+        
+      } catch (error) {
+        console.error('Ошибка при повторной попытке:', error);
+        this.lastError = error.message;
+        
+        if (this.retryCount >= this.maxRetries) {
+          this.$el.classList.add('error-max-retries');
+        }
+      } finally {
+        this.isRetrying = false;
+        this.$el.classList.remove('error-retrying');
+      }
+    },
+    
+    toggleDetails() {
+      this.showDetails = !this.showDetails;
+    },
+    
+    reportError() {
+      // Здесь можно добавить отправку отчета об ошибке
+      console.log('Отчет об ошибке отправлен');
+    }
+  }`}
+  role="alert"
+  aria-live="polite"
+>
+  <!-- Основной контент ошибки -->
+  <div class="error-content">
+    <!-- Иконка -->
+    <div class="error-icon" set:html={errorTypeIcons[errorType]} />
+    
+    <!-- Сообщение -->
+    <div class="error-message">
+      <h3 class="error-title">
+        {errorType === 'network' && 'Проблемы с сетью'}
+        {errorType === 'loading' && 'Ошибка загрузки'}
+        {errorType === 'general' && 'Произошла ошибка'}
+      </h3>
+      <p class="error-description">{errorMessage}</p>
+    </div>
+    
+    <!-- Кнопки действий -->
+    <div class="error-actions">
+      {showRetry && (
+        <button 
+          @click="retry()"
+          :disabled="isRetrying || retryCount >= maxRetries"
+          class="error-retry-button"
+          :class="{
+            'loading': isRetrying,
+            'disabled': retryCount >= maxRetries
+          }"
+        >
+          <span x-show="!isRetrying && retryCount < maxRetries">
+            Попробовать снова
+          </span>
+          <span x-show="isRetrying">
+            Повторная попытка...
+          </span>
+          <span x-show="retryCount >= maxRetries">
+            Превышен лимит попыток
+          </span>
+        </button>
+      )}
+      
+      <button 
+        @click="toggleDetails()"
+        class="error-details-button"
+        x-show="lastError || retryCount > 0"
+      >
+        <span x-text="showDetails ? 'Скрыть детали' : 'Показать детали'"></span>
+      </button>
+    </div>
+    
+    <!-- Детали ошибки -->
+    <div 
+      class="error-details"
+      x-show="showDetails"
+      x-transition:enter="transition ease-out duration-200"
+      x-transition:enter-start="opacity-0 transform scale-95"
+      x-transition:enter-end="opacity-100 transform scale-100"
+      x-transition:leave="transition ease-in duration-150"
+      x-transition:leave-start="opacity-100 transform scale-100"
+      x-transition:leave-end="opacity-0 transform scale-95"
+    >
+      <div class="error-details-content">
+        <div x-show="retryCount > 0">
+          <strong>Попыток выполнено:</strong> <span x-text="retryCount"></span>/<span x-text="maxRetries"></span>
+        </div>
+        <div x-show="lastError">
+          <strong>Последняя ошибка:</strong> <span x-text="lastError"></span>
+        </div>
+        <div>
+          <strong>Время:</strong> <span x-text="new Date().toLocaleString()"></span>
+        </div>
+      </div>
+      
+      <button 
+        @click="reportError()"
+        class="error-report-button"
+      >
+        Сообщить о проблеме
+      </button>
+    </div>
+  </div>
+  
+  <!-- Индикатор повторной попытки -->
+  <div class="error-retry-indicator" x-show="isRetrying">
+    <div class="error-retry-spinner"></div>
+  </div>
+</div>
+
+<style>
+  .error-boundary {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border-radius: var(--border-radius-large);
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid rgba(239, 68, 68, 0.2);
+    color: var(--color-error);
+    text-align: center;
+    min-height: 200px;
+    transition: all var(--duration-normal) var(--ease-natural);
+  }
+  
+  .error-boundary-network {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    color: rgb(59, 130, 246);
+  }
+  
+  .error-boundary-loading {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
+    color: rgb(245, 158, 11);
+  }
+  
+  .error-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .error-icon {
+    opacity: 0.8;
+    animation: error-icon-pulse 2s ease-in-out infinite;
+  }
+  
+  .error-message {
+    text-align: center;
+  }
+  
+  .error-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .error-description {
+    margin: 0;
+    opacity: 0.8;
+    line-height: 1.5;
+  }
+  
+  .error-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .error-retry-button,
+  .error-details-button,
+  .error-report-button {
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    border: 1px solid currentColor;
+    background: transparent;
+    color: currentColor;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-natural);
+  }
+  
+  .error-retry-button:hover:not(.disabled),
+  .error-details-button:hover,
+  .error-report-button:hover {
+    background: currentColor;
+    color: white;
+    transform: translateY(-1px);
+  }
+  
+  .error-retry-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .error-retry-button.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .error-details {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .error-details-content {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  
+  .error-details-content div {
+    margin-bottom: 0.5rem;
+  }
+  
+  .error-retry-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    padding: 1rem;
+  }
+  
+  .error-retry-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: error-spinner 1s linear infinite;
+  }
+  
+  /* Анимации */
+  @keyframes error-icon-pulse {
+    0%, 100% {
+      opacity: 0.8;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+  
+  @keyframes error-spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Состояния */
+  .error-retrying {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  
+  .error-resolved {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+  }
+  
+  .error-max-retries {
+    border-color: rgba(220, 38, 38, 0.4);
+    background: rgba(220, 38, 38, 0.15);
+  }
+  
+  /* Адаптивность */
+  @media (max-width: 640px) {
+    .error-boundary {
+      padding: 1.5rem;
+      min-height: 150px;
+    }
+    
+    .error-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .error-retry-button,
+    .error-details-button,
+    .error-report-button {
+      width: 100%;
+    }
+  }
+  
+  /* Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .error-icon {
+      animation: none;
+    }
+    
+    .error-retry-spinner {
+      animation: error-spinner 2s linear infinite;
+    }
+  }
+</style>
