@@ -33,6 +33,10 @@ const {
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#000000" />
+    
     <!-- Шрифты будут загружены через CSS -->
     <!-- <link rel="preload" href="/fonts/MV-SKIFER.otf" as="font" type="font/otf" crossorigin />
     <link rel="preload" href="/fonts/Onest-Regular.ttf" as="font" type="font/ttf" crossorigin /> -->
@@ -42,6 +46,10 @@ const {
     
   </head>
   <body class="bg-primary text-white font-onest">
+    <!-- Skip to main content ссылка для скрин-ридеров -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded">
+      Перейти к основному содержимому
+    </a>
     <slot />
     <style>
       /* Убираем выделение при нажатии */
@@ -78,6 +86,18 @@ const {
     <script>
       import Alpine from 'alpinejs';
       window.Alpine = Alpine;
+      
+      // Регистрация Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+          try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('SW registered:', registration);
+          } catch (error) {
+            console.log('SW registration failed:', error);
+          }
+        });
+      }
       
       // Ждем загрузки DOM перед инициализацией Alpine.js
       document.addEventListener('DOMContentLoaded', () => {
