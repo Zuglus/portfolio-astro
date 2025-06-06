@@ -5,7 +5,7 @@ describe('Types', () => {
   describe('Slide interface', () => {
     it('должен соответствовать структуре слайда', () => {
       const mockSlide: Slide = {
-        image: mockImageMetadata('/test.png'),
+        image: global.mockImageMetadata('/test.png'),
         task: 'Тестовая задача',
         solution: 'Тестовое решение'
       };
@@ -19,7 +19,7 @@ describe('Types', () => {
 
     it('должен работать без необязательных полей', () => {
       const minimalSlide: Slide = {
-        image: mockImageMetadata('/test.png')
+        image: global.mockImageMetadata('/test.png')
       };
 
       expect(minimalSlide).toHaveProperty('image');
@@ -37,7 +37,7 @@ describe('Types', () => {
         audience: 'Тестовая аудитория',
         slides: [
           {
-            image: mockImageMetadata('/slide1.png'),
+            image: global.mockImageMetadata('/slide1.png'),
             task: 'Задача 1',
             solution: 'Решение 1'
           }
@@ -58,7 +58,7 @@ describe('Types', () => {
     it('должен соответствовать структуре элемента портфолио', () => {
       const mockPortfolioItem: PortfolioItem = {
         id: 'portfolio-item-1',
-        image: mockImageMetadata('/portfolio.png'),
+        image: global.mockImageMetadata('/portfolio.png'),
         alt: 'Альтернативный текст'
       };
 
