@@ -40,9 +40,10 @@ const {
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#000000" />
     
-    <!-- Шрифты будут загружены через CSS -->
-    <!-- <link rel="preload" href="/fonts/MV-SKIFER.otf" as="font" type="font/otf" crossorigin />
-    <link rel="preload" href="/fonts/Onest-Regular.ttf" as="font" type="font/ttf" crossorigin /> -->
+    <!-- Preload критических ресурсов -->
+    <link rel="preload" href="/fonts/MV-SKIFER.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/Onest-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="modulepreload" href="/_astro/Layout.astro_astro_type_script_index_0_lang.Ce6X-p93.js" />
     
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
@@ -55,8 +56,11 @@ const {
     </a>
     <slot />
     <script>
-      import Alpine from 'alpinejs';
-      window.Alpine = Alpine;
+      // Асинхронная загрузка Alpine.js для лучшей производительности
+      import('alpinejs').then(Alpine => {
+        window.Alpine = Alpine.default;
+        Alpine.default.start();
+      });
       
       // Регистрация Service Worker
       if ('serviceWorker' in navigator) {
@@ -69,11 +73,6 @@ const {
           }
         });
       }
-      
-      // Ждем загрузки DOM перед инициализацией Alpine.js
-      document.addEventListener('DOMContentLoaded', () => {
-        Alpine.start();
-      });
     </script>
   </body>
 </html>

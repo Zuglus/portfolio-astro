@@ -9,7 +9,14 @@ export default defineConfig({
   ],
   vite: {
     build: {
-      cssMinify: 'esbuild'
+      cssMinify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            alpine: ['alpinejs'],
+          }
+        }
+      }
     }
   }
 });
