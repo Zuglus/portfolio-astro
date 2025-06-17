@@ -1,6 +1,6 @@
-const CACHE_NAME = 'portfolio-v1';
-const STATIC_CACHE = 'static-v1';
-const DYNAMIC_CACHE = 'dynamic-v1';
+const CACHE_NAME = 'portfolio-v2';
+const STATIC_CACHE = 'static-v2';
+const DYNAMIC_CACHE = 'dynamic-v2';
 
 // Критические ресурсы для precaching
 const PRECACHE_URLS = [
@@ -34,10 +34,11 @@ self.addEventListener('install', event => {
 async function precacheAssets() {
   const cache = await caches.open(STATIC_CACHE);
   
-  // Основные CSS и JS файлы (будут найдены динамически)
+  // Основные CSS и JS файлы (обновленные после оптимизации)
   const criticalAssets = [
     '/_astro/index.R7dpLFGb.css',
-    '/_astro/Layout.astro_astro_type_script_index_0_lang.Ce6X-p93.js'
+    '/_astro/Layout.astro_astro_type_script_index_0_lang.B9-nT2ni.js',
+    '/_astro/module.esm.DZ151cQZ.js'
   ];
   
   try {
