@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import type { PortfolioItem } from '../types';
 
 interface Props {
@@ -25,14 +26,14 @@ const { project, index = 0 } = Astro.props;
   x-on:click="handleClick()"
 >
   <div class="w-full group-hover:scale-105 transition-transform duration-300">
-    <img 
-      src={project.image.src} 
+    <Image 
+      src={project.image} 
       alt={project.alt}
       class="w-full h-full object-cover"
+      format="webp"
+      quality={85}
       loading={index < 2 ? "eager" : "lazy"}
       decoding="async"
-      width={project.image.width}
-      height={project.image.height}
       data-flip-image="true"
     />
   </div>

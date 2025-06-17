@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import ProjectCard from './ProjectCard.astro';
 import { portfolioData } from '../data/portfolio';
 import ringsImage from '../assets/images/rings_with_circle.svg';
@@ -7,13 +8,14 @@ import ringsImage from '../assets/images/rings_with_circle.svg';
 <section class="relative mx-auto px-4 py-[7.75rem] max-w-[75rem] z-10" id="portfolio" role="region" aria-labelledby="portfolio-heading">
   <div class="relative mb-[4.1875rem] text-center z-0">
     <div class="absolute top-[-2.875rem] md:top-[-1.875rem] left-[50%] w-[25.875rem] md:w-[17.25rem] h-[28.0125rem] md:h-[18.675rem] transform -translate-x-[20.6rem] md:-translate-x-[13.625rem] z-0">
-      <img 
-        src={ringsImage.src}
+      <Image 
+        src={ringsImage}
         alt="Декоративные кольца" 
         class="w-full h-full object-contain"
+        format="webp"
+        quality={80}
         loading="eager"
-        width={ringsImage.width}
-        height={ringsImage.height}
+        decoding="async"
       />
     </div>
     <h2 id="portfolio-heading" class="font-mv-skifer text-[4.6875rem] md:text-[3.125rem] leading-[1.24] tracking-[0.01em] relative z-10">Портфолио</h2>
