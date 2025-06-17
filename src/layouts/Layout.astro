@@ -2,6 +2,9 @@
 import '../styles/global.css';
 import '../styles/constants.css';
 import '../styles/modal-animations.css';
+import '../styles/components/button-interactions.css';
+import '../styles/components/shimmer-animations.css';
+import '../styles/utilities/accessibility.css';
 
 export interface Props {
     title: string;
@@ -51,38 +54,6 @@ const {
       Перейти к основному содержимому
     </a>
     <slot />
-    <style>
-      /* Убираем выделение при нажатии */
-      button {
-        -webkit-tap-highlight-color: transparent;
-        user-select: none;
-      }
-      
-      /* Shimmer анимация для скелетона */
-      @keyframes shimmer {
-        0% {
-          transform: translateX(-100%);
-        }
-        100% {
-          transform: translateX(100%);
-        }
-      }
-      
-      .animate-shimmer {
-        animation: shimmer 2s infinite;
-      }
-      
-      @media (prefers-reduced-motion: reduce) {
-        * {
-          transition: none !important;
-          animation: none !important;
-        }
-        
-        .animate-shimmer {
-          animation: none !important;
-        }
-      }
-    </style>
     <script>
       import Alpine from 'alpinejs';
       window.Alpine = Alpine;

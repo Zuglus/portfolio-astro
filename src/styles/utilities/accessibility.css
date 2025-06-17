@@ -1,0 +1,11 @@
+/* Респект к пользователям с ограниченным восприятием движения */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .animate-shimmer {
+    animation: none !important;
+  }
+}
