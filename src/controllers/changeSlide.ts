@@ -1,4 +1,5 @@
 import type { ModalController } from './modalController'
+import { delay } from '../utils/delay'
 
 export async function changeSlide(
   controller: ModalController,
@@ -14,37 +15,29 @@ export async function changeSlide(
   controller.isTransitioning = true
   controller.isContentVisible = false
 
-  await new Promise((resolve) => setTimeout(resolve, 150))
+  await delay(150)
 
+  let imageLoaded = false
   const skeletonTimeout = window.setTimeout(() => {
     if (!imageLoaded) {
       controller.isImageLoading = true
     }
   }, 150)
-  let imageLoaded = false
 
   try {
     const newSlide = controller.currentProject.slides[newIndex]
     if (newSlide?.image?.src) {
       await controller.preloadImage(newSlide.image.src)
     }
-
-    imageLoaded = true
-    clearTimeout(skeletonTimeout)
-
-    controller.isImageLoading = false
-    controller.currentSlideIndex = newIndex
-    controller.isContentVisible = true
-
-    await new Promise((resolve) => setTimeout(resolve, 150))
   } catch {
+    // ignore preload errors
+  } finally {
     imageLoaded = true
     clearTimeout(skeletonTimeout)
     controller.isImageLoading = false
     controller.currentSlideIndex = newIndex
     controller.isContentVisible = true
-    await new Promise((resolve) => setTimeout(resolve, 150))
+    await delay(150)
+    controller.isTransitioning = false
   }
-
-  controller.isTransitioning = false
 }
