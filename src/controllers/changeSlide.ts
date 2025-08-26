@@ -1,4 +1,6 @@
-export async function changeSlide(controller: any, newIndex: number) {
+import type { ModalController } from './modalController'
+
+export async function changeSlide(controller: ModalController, newIndex: number) {
   if (
     controller.isTransitioning ||
     !controller.currentProject ||

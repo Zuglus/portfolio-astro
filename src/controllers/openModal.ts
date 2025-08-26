@@ -1,6 +1,9 @@
-import type { RuntimeProject } from './modalController'
+import type { ModalController, RuntimeProject } from './modalController'
 
-export async function openModal(controller: any, projectId: string) {
+export async function openModal(
+  controller: ModalController,
+  projectId: string,
+) {
   if (controller.isModalOpen) return
 
   const projects = (window as Window & { portfolioProjects?: RuntimeProject[] })
