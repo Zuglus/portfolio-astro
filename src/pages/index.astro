@@ -12,10 +12,10 @@ import { projects } from '../data/projects'
   window.portfolioProjects = JSON.parse(JSON.stringify(projects))
 </script>
 <script>
-  import ModalController from '../components/ModalController'
+  import createModalController from '../controllers/modalController'
   /* global Alpine */
   document.addEventListener('alpine:init', () => {
-    Alpine.data('modalController', ModalController)
+    Alpine.data('modalController', createModalController)
   })
 </script>
 
