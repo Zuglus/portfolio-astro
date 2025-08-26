@@ -54,36 +54,23 @@ Install dependencies and start the dev server:
 ```bash
 npm install
 npm run dev
-=======
-```text
-/
-├── public/
-├── src/
-│   ├── controllers/
-│   │   └── modalController.ts
-│   ├── components/
-│   └── pages/
-│       └── index.astro
-└── package.json
 ```
 
-### Linting
+## Linting
 
 ```bash
 npm run lint
 ```
-=======
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components. Modal behavior is handled by controller modules in `src/controllers/` and composed by `modalController.ts` for use on the index page.
 
 
-### Testing
+## Testing
 
 ```bash
 npm test             # run tests in watch mode
 npm run test:coverage  # generate coverage report
 ```
 
-### Build & preview
+## Build & preview
 
 ```bash
 npm run build
