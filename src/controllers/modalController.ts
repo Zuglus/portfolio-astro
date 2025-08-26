@@ -136,3 +136,5 @@ export default function createModalController() {
     },
   }
 }
+
+export type ModalController = ReturnType<typeof createModalController>

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import createModalController from '../controllers/modalController'
+import type { RuntimeProject } from '../controllers/modalController'
 import { subscribeToModalEvents } from '../controllers/eventSubscriptions'
 
 describe('ModalController', () => {
@@ -46,7 +47,7 @@ describe('ModalController', () => {
   it('openModal loads project data', async () => {
     const controller = createModalController()
     controller.preloadImage = vi.fn().mockResolvedValue(new Image())
-    ;(window as any).portfolioProjects = [
+    ;(window as Window & { portfolioProjects: RuntimeProject[] }).portfolioProjects = [
       {
         id: '1',
         title: 'Test',

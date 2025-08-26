@@ -31,7 +31,7 @@ describe('progressiveImage controller', () => {
 
   beforeEach(() => {
     // clean up any global errorHandler
-    // @ts-ignore
+    // @ts-expect-error: remove test handler if it exists
     delete window.errorHandler
   })
 

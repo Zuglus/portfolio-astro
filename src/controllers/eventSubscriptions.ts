@@ -1,4 +1,6 @@
-export function subscribeToModalEvents(controller: any) {
+import type { ModalController } from './modalController'
+
+export function subscribeToModalEvents(controller: ModalController) {
   document.addEventListener('open-modal', (e: Event) => {
     const ce = e as CustomEvent<{ projectId?: string }>
     if (ce.detail?.projectId) {
