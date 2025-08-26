@@ -1,21 +1,21 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import PortfolioSection from '../components/PortfolioSection.astro';
-import ContactSection from '../components/ContactSection.astro';
-import Footer from '../components/Footer.astro';
-import { projects } from '../data/projects';
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import PortfolioSection from '../components/PortfolioSection.astro'
+import ContactSection from '../components/ContactSection.astro'
+import Footer from '../components/Footer.astro'
+import { projects } from '../data/projects'
 ---
 
 <script is:inline define:vars={{ projects }}>
   // Ensure proper UTF-8 encoding for projects data
-  window.portfolioProjects = JSON.parse(JSON.stringify(projects));
+  window.portfolioProjects = JSON.parse(JSON.stringify(projects))
 </script>
 <script>
-  import ModalController from '../components/ModalController';
+  import ModalController from '../components/ModalController'
   document.addEventListener('alpine:init', () => {
-    Alpine.data('modalController', ModalController);
-  });
+    Alpine.data('modalController', ModalController)
+  })
 </script>
 
 <Layout title="Полина Мигранова | Графический дизайнер">
@@ -29,9 +29,9 @@ import { projects } from '../data/projects';
     <ContactSection />
     <Footer />
 
-    <div 
-      x-show="isModalOpen" 
-      @click.self="closeModal()" 
+    <div
+      x-show="isModalOpen"
+      x-on:click.self="closeModal()"
       class="fixed inset-0 z-50 flex items-center justify-center"
       style="display: none; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);"
       role="dialog"
@@ -39,77 +39,107 @@ import { projects } from '../data/projects';
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
     >
-      <div 
+      <div
         x-show="isModalOpen"
-        @click.stop=""
+        x-on:click.stop=""
         class="relative w-full max-w-7xl mx-auto bg-primary border border-white/10 rounded-[1.875rem] md:rounded-[1.25rem] shadow-xl overflow-hidden h-auto"
       >
         <div class="h-auto max-h-[90vh] overflow-y-auto modal-scrollbar">
           <div class="p-[3.75rem] md:p-[2.5rem]">
-            <header class="space-y-[2.8125rem] md:space-y-[1.875rem] mb-8" x-show="currentProject">
+            <header
+              class="space-y-[2.8125rem] md:space-y-[1.875rem] mb-8"
+              x-show="currentProject"
+            >
               <div>
-                <h3 
+                <h3
                   id="modal-title"
                   x-text="currentProject?.title || ''"
                   class="font-mv-skifer text-[4.6875rem] md:text-[3.125rem]"
-                ></h3>
-                <h4 
+                >
+                </h3>
+                <h4
                   id="modal-description"
                   x-text="currentProject?.description || ''"
                   class="mb-4 font-extralight text-[3.28125rem] md:text-2xl leading-normal"
                   x-show="currentProject?.description"
-                ></h4>
-                <p 
+                >
+                </h4>
+                <p
                   class="font-onest text-[3.28125rem] md:text-[1.25rem]"
                   x-show="currentProject?.audience"
                 >
                   <span class="font-semibold">Целевая аудитория: </span>
-                  <span class="opacity-80" x-text="currentProject?.audience || ''"></span>
+                  <span
+                    class="opacity-80"
+                    x-text="currentProject?.audience || ''"></span>
                 </p>
               </div>
             </header>
 
-            <div class="slider w-full max-w-[93.75rem] mx-auto overflow-hidden group relative" x-show="currentSlide">
+            <div
+              class="slider w-full max-w-[93.75rem] mx-auto overflow-hidden group relative"
+              x-show="currentSlide"
+            >
               <div class="flex justify-center mb-6 relative">
                 <!-- Скелетон загрузки (переключение слайдов) -->
-                <div 
+                <div
                   x-show="isImageLoading"
-                  :class="skeletonClasses"
+                  x-bind:class="skeletonClasses"
                   class="bg-white/5 rounded-[1.25rem] flex items-center justify-center relative overflow-hidden"
                 >
                   <!-- Shimmer эффект -->
-                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer"></div>
-                  
+                  <div
+                    class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer"
+                  >
+                  </div>
+
                   <!-- Индикатор загрузки -->
-                  <div class="relative z-10 flex flex-col items-center space-y-4">
-                    <div class="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <p class="text-white/60 text-sm font-onest">Загрузка изображения...</p>
+                  <div
+                    class="relative z-10 flex flex-col items-center space-y-4"
+                  >
+                    <div
+                      class="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                    >
+                    </div>
+                    <p class="text-white/60 text-sm font-onest">
+                      Загрузка изображения...
+                    </p>
                   </div>
                 </div>
-                
+
                 <!-- Скелетон начальной загрузки -->
-                <div 
+                <div
                   x-show="isInitialLoad"
                   class="w-full max-w-4xl h-[65vh] md:h-[70vh] bg-white/5 rounded-[1.25rem] flex items-center justify-center relative overflow-hidden"
                 >
                   <!-- Shimmer эффект -->
-                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer"></div>
-                  
+                  <div
+                    class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer"
+                  >
+                  </div>
+
                   <!-- Индикатор загрузки -->
-                  <div class="relative z-10 flex flex-col items-center space-y-4">
-                    <div class="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <p class="text-white/60 text-sm font-onest">Загрузка проекта...</p>
+                  <div
+                    class="relative z-10 flex flex-col items-center space-y-4"
+                  >
+                    <div
+                      class="w-12 h-12 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                    >
+                    </div>
+                    <p class="text-white/60 text-sm font-onest">
+                      Загрузка проекта...
+                    </p>
                   </div>
                 </div>
-                
+
                 <!-- Основное изображение -->
                 <img
                   x-show="!isImageLoading && !isInitialLoad"
                   x-bind:src="currentSlide?.image?.src || ''"
                   x-bind:alt="`${currentProject?.title || ''} - слайд ${currentSlideIndex + 1}`"
-                  @click="zoomImage()"
+                  x-on:click="zoomImage()"
                   class="object-contain rounded-[1.25rem] transition-opacity duration-150 ease-in-out cursor-zoom-in hover:opacity-90"
-                  x-bind:class="{
+                  x-bindx-bind:class="{
                     [imageContainerClasses]: true,
                     'opacity-0': !isContentVisible, 
                     'opacity-100': isContentVisible
@@ -120,46 +150,56 @@ import { projects } from '../data/projects';
               </div>
 
               <!-- Информация о слайде для скрин-ридеров -->
-              <div 
+              <div
                 x-show="currentProject?.slides?.length > 1"
-                class="sr-only" 
+                class="sr-only"
                 aria-live="polite"
                 aria-atomic="true"
                 x-text="`Слайд ${currentSlideIndex + 1} из ${currentProject?.slides?.length || 0}`"
-              ></div>
+              >
+              </div>
 
-              <div class="flex justify-center items-center space-x-6 mb-6" x-show="currentProject?.slides?.length > 1">
+              <div
+                class="flex justify-center items-center space-x-6 mb-6"
+                x-show="currentProject?.slides?.length > 1"
+              >
                 <button
-                  @click="prevSlide()"
-                  :disabled="isTransitioning"
+                  x-on:click="prevSlide()"
+                  x-bind:disabled="isTransitioning"
                   class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer transform md:w-[3rem] md:h-[3rem] md:text-5xl select-none"
-                  :class="{ 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-white': isTransitioning }"
-                  aria-label="Предыдущий слайд"
-                >&larr;</button>
+                  x-bind:class="{ 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-white': isTransitioning }"
+                  aria-label="Предыдущий слайд">&larr;</button
+                >
 
                 <div class="flex space-x-2">
-                  <template x-for="(slide, index) in currentProject?.slides || []" :key="index">
+                  <template
+                    x-for="(slide, index) in currentProject?.slides || []"
+                    x-bind:key="index"
+                  >
                     <button
-                      @click="goToSlide(index)"
-                      :disabled="isTransitioning"
+                      x-on:click="goToSlide(index)"
+                      x-bind:disabled="isTransitioning"
                       class="w-3 h-3 rounded-full border border-white/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 select-none"
-                      :class="currentSlideIndex === index ? 'bg-white' : 'bg-white/20 hover:bg-white/40'"
-                      :aria-label="`Перейти к слайду ${index + 1} из ${currentProject?.slides?.length || 0}`"
+                      x-bind:class="currentSlideIndex === index ? 'bg-white' : 'bg-white/20 hover:bg-white/40'"
+                      x-bind:aria-label="`Перейти к слайду ${index + 1} из ${currentProject?.slides?.length || 0}`"
                     ></button>
                   </template>
                 </div>
 
                 <button
-                  @click="nextSlide()"
-                  :disabled="isTransitioning"
+                  x-on:click="nextSlide()"
+                  x-bind:disabled="isTransitioning"
                   class="border transition-all duration-300 rounded-full flex items-center justify-center text-7xl w-[5rem] h-[5rem] border-white/20 hover:bg-white hover:text-[#3624A6] cursor-pointer transform md:w-[3rem] md:h-[3rem] md:text-5xl select-none"
-                  :class="{ 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-white': isTransitioning }"
-                  aria-label="Следующий слайд"
-                >&rarr;</button>
+                  x-bind:class="{ 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-white': isTransitioning }"
+                  aria-label="Следующий слайд">&rarr;</button
+                >
               </div>
 
               <!-- Скелетон текстового контента при начальной загрузке -->
-              <div x-show="isInitialLoad" class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4">
+              <div
+                x-show="isInitialLoad"
+                class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4"
+              >
                 <div class="space-y-3">
                   <div class="h-6 bg-white/5 rounded animate-pulse"></div>
                   <div class="h-6 bg-white/5 rounded animate-pulse w-3/4"></div>
@@ -169,16 +209,22 @@ import { projects } from '../data/projects';
                   <div class="h-6 bg-white/5 rounded animate-pulse w-5/6"></div>
                 </div>
               </div>
-              
+
               <!-- Основной текстовый контент -->
-              <div x-show="!isInitialLoad" class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4 transition-opacity duration-150 ease-in-out" :class="{ 'opacity-0': !isContentVisible, 'opacity-100': isContentVisible }">
+              <div
+                x-show="!isInitialLoad"
+                class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4 transition-opacity duration-150 ease-in-out"
+                x-bind:class="{ 'opacity-0': !isContentVisible, 'opacity-100': isContentVisible }"
+              >
                 <p x-show="currentSlide?.task">
                   <span class="font-semibold">Задача: </span>
-                  <span class="opacity-80" x-text="currentSlide?.task || ''"></span>
+                  <span class="opacity-80" x-text="currentSlide?.task || ''"
+                  ></span>
                 </p>
                 <p x-show="currentSlide?.solution">
                   <span class="font-semibold">Решение: </span>
-                  <span class="opacity-80" x-text="currentSlide?.solution || ''"></span>
+                  <span class="opacity-80" x-text="currentSlide?.solution || ''"
+                  ></span>
                 </p>
               </div>
             </div>
@@ -186,7 +232,7 @@ import { projects } from '../data/projects';
         </div>
 
         <button
-          @click="closeModal()"
+          x-on:click="closeModal()"
           class="absolute top-6 right-6 p-4 md:p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white/50 z-50 group transition-all duration-300 ease-in-out shadow-lg"
           aria-label="Закрыть"
         >
@@ -200,17 +246,16 @@ import { projects } from '../data/projects';
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
+              d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
     </div>
 
     <!-- Полноэкранный просмотр изображения -->
-    <div 
-      x-show="isImageZoomed" 
-      @click.self="closeZoom()"
+    <div
+      x-show="isImageZoomed"
+      x-on:click.self="closeZoom()"
       class="fixed inset-0 z-[60] flex items-center justify-center p-4"
       style="display: none; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(8px);"
       x-transition:enter="transition ease-out duration-300"
@@ -226,12 +271,14 @@ import { projects } from '../data/projects';
           x-bind:src="currentSlide?.image?.src || ''"
           x-bind:alt="`${currentProject?.title || ''} - слайд ${currentSlideIndex + 1} (увеличено)`"
           class="max-w-full max-h-full object-contain cursor-zoom-out"
-          @click="closeZoom()"
+          x-on:click="closeZoom()"
           title="Нажмите для закрытия"
         />
-        
+
         <!-- Подсказка -->
-        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 backdrop-blur-sm rounded-lg px-4 py-2">
+        <div
+          class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 backdrop-blur-sm rounded-lg px-4 py-2"
+        >
           <p class="text-white/80 text-sm font-onest" id="close-hint">
             клик для закрытия
           </p>
@@ -240,4 +287,3 @@ import { projects } from '../data/projects';
     </div>
   </main>
 </Layout>
-

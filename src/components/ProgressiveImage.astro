@@ -1,27 +1,27 @@
 ---
-import { Image } from 'astro:assets';
-import SkeletonLoader from './ui/SkeletonLoader.astro';
+import { Image } from 'astro:assets'
+import SkeletonLoader from './ui/SkeletonLoader.astro'
 
 interface Props {
-  src: ImageMetadata | string;
-  alt: string;
-  className?: string;
-  priority?: boolean;
-  width?: number;
-  height?: number;
+  src: ImageMetadata | string
+  alt: string
+  className?: string
+  priority?: boolean
+  width?: number
+  height?: number
   /** Показывать ли скелетон во время загрузки */
-  showSkeleton?: boolean;
+  showSkeleton?: boolean
   /** Тип анимации появления */
-  animationType?: 'fade-in' | 'blur-to-sharp' | 'reveal-up' | 'scale-in';
+  animationType?: 'fade-in' | 'blur-to-sharp' | 'reveal-up' | 'scale-in'
   /** Использовать ли Intersection Observer */
-  useIntersectionObserver?: boolean;
+  useIntersectionObserver?: boolean
   /** Задержка анимации (для stagger эффектов) */
-  animationDelay?: number;
-  [key: string]: any;
+  animationDelay?: number
+  [key: string]: any
 }
 
-const { 
-  src, 
+const {
+  src,
   alt,
   className = '',
   priority = false,
@@ -32,15 +32,18 @@ const {
   useIntersectionObserver = true,
   animationDelay = 0,
   ...rest
-} = Astro.props;
+} = Astro.props
 
-const isRemote = typeof src === 'string' && src.startsWith('http');
-const imageId = `img_${Math.random().toString(36).substr(2, 9)}`;
-const animationClass = `animate-${animationType}`;
+const isRemote = typeof src === 'string' && src.startsWith('http')
+const imageId = `img_${Math.random().toString(36).substr(2, 9)}`
+const animationClass = `animate-${animationType}`
 ---
 
-<div 
-  class:list={["relative w-full h-full overflow-hidden isolate image-container", className]} 
+<div
+  class:list={[
+    'relative w-full h-full overflow-hidden isolate image-container',
+    className,
+  ]}
   {...rest}
   x-data={`{
     imageId: '${imageId}',
@@ -77,7 +80,9 @@ const animationClass = `animate-${animationType}`;
       if (this.isInitialized) return;
       this.isInitialized = true;
       
-      ${useIntersectionObserver ? `
+      ${
+        useIntersectionObserver
+          ? `
       // Проверяем, виден ли элемент уже сейчас
       const rect = this.$el.getBoundingClientRect();
       const isCurrentlyVisible = rect.top < window.innerHeight && rect.bottom > 0;
@@ -87,9 +92,11 @@ const animationClass = `animate-${animationType}`;
       } else {
         this.setupIntersectionObserver();
       }
-      ` : `
+      `
+          : `
       this.makeVisible();
-      `}
+      `
+      }
       
       this.setupImageHandlers();
     },
@@ -276,48 +283,49 @@ const animationClass = `animate-${animationType}`;
   x-on:beforedestroy="destroy()"
 >
   <!-- Скелетон -->
-  {showSkeleton && (
-    <div 
-      x-show="!imageLoaded && !imageError"
-      x-transition:leave="transition-all duration-500 ease-out"
-      x-transition:leave-start="opacity-100 scale-100"
-      x-transition:leave-end="opacity-0 scale-95"
-      class="absolute inset-0 z-10"
-    >
-      <SkeletonLoader 
-        width="100%" 
-        height="100%" 
-        variant="rectangular"
-        shimmerIntensity="subtle"
-        duration={1.5}
-      />
-    </div>
-  )}
+  {
+    showSkeleton && (
+      <div
+        x-show="!imageLoaded && !imageError"
+        x-transition:leave="transition-all duration-500 ease-out"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+        class="absolute inset-0 z-10"
+      >
+        <SkeletonLoader
+          width="100%"
+          height="100%"
+          variant="rectangular"
+          shimmerIntensity="subtle"
+          duration={1.5}
+        />
+      </div>
+    )
+  }
 
   <!-- Изображение -->
-  <div
-    x-show="imageLoaded"
-    class="w-full h-full image-wrapper"
-  >
-    {isRemote ? (
-      <img 
-        src={src as string} 
-        alt={alt}
-        class="w-full h-full object-cover image-element"
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-      />
-    ) : ( 
-      <Image 
-        src={src as ImageMetadata} 
-        alt={alt}
-        class="w-full h-full object-cover image-element"
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        width={width}
-        height={height}
-      />
-    )}
+  <div x-show="imageLoaded" class="w-full h-full image-wrapper">
+    {
+      isRemote ? (
+        <img
+          src={src as string}
+          alt={alt}
+          class="w-full h-full object-cover image-element"
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      ) : (
+        <Image
+          src={src as ImageMetadata}
+          alt={alt}
+          class="w-full h-full object-cover image-element"
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          width={width}
+          height={height}
+        />
+      )
+    }
   </div>
 
   <!-- Ошибка загрузки -->
@@ -329,8 +337,15 @@ const animationClass = `animate-${animationType}`;
     class="absolute inset-0 flex items-center justify-center bg-gray-100/10 text-gray-400"
   >
     <div class="text-center">
-      <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+      <svg
+        class="w-12 h-12 mx-auto mb-2"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+          clip-rule="evenodd"></path>
       </svg>
       <p class="text-sm">Изображение недоступно</p>
     </div>
@@ -338,6 +353,6 @@ const animationClass = `animate-${animationType}`;
 </div>
 
 <script type="module">
-  import logger from '../utils/logger';
-  window.appLogger = logger;
+  import logger from '../utils/logger'
+  window.appLogger = logger
 </script>

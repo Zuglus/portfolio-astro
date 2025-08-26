@@ -1,4 +1,4 @@
-import { JSDOM } from 'jsdom';
+import { JSDOM } from 'jsdom'
 
 /**
  * Утилита для тестирования Astro компонентов
@@ -6,16 +6,16 @@ import { JSDOM } from 'jsdom';
  */
 
 export function parseAstroHTML(html: string) {
-  const dom = new JSDOM(html);
-  return dom.window.document;
+  const dom = new JSDOM(html)
+  return dom.window.document
 }
 
 export function createMockImage(src: string, alt: string) {
-  return `<img src="${src}" alt="${alt}" />`;
+  return `<img src="${src}" alt="${alt}" />`
 }
 
 export function createMockButton(onClick: string, content: string) {
-  return `<button x-on:click="${onClick}">${content}</button>`;
+  return `<button x-on:click="${onClick}">${content}</button>`
 }
 
 // Мок данные для тестирования
@@ -28,13 +28,13 @@ export const mockProject = {
     {
       image: { src: '/test-image.png', width: 400, height: 300 },
       task: 'Тестовая задача',
-      solution: 'Тестовое решение'
-    }
-  ]
-};
+      solution: 'Тестовое решение',
+    },
+  ],
+}
 
 export const mockPortfolioItem = {
   id: 'test-item',
   image: { src: '/test-portfolio.png', width: 400, height: 300 },
-  alt: 'Тестовый элемент портфолио'
-};
+  alt: 'Тестовый элемент портфолио',
+}

@@ -1,15 +1,22 @@
 ---
-import { Image } from 'astro:assets';
-import buttonCircleImage from '../assets/images/koltsa_fon1.svg';
+import { Image } from 'astro:assets'
+import buttonCircleImage from '../assets/images/koltsa_fon1.svg'
 
-const contactLink = "https://vk.me/dizaynponauke";
+const contactLink = 'https://vk.me/dizaynponauke'
 ---
-<section class="relative mt-[12.375rem] md:mt-[9.75rem] pb-[30.9375rem] md:pb-[20.625rem]" role="region" aria-label="Контактная информация">
-  <div class="absolute -top-96 left-1/2 w-[56rem] md:w-[40rem] -translate-x-[36rem] md:-translate-x-[24.5rem] -translate-y-[13rem] md:-translate-y-[3rem] overflow-hidden z-0">
-    <Image 
-      src={buttonCircleImage} 
-      alt="" 
-      class="w-full h-full object-contain" 
+
+<section
+  class="relative mt-[12.375rem] md:mt-[9.75rem] pb-[30.9375rem] md:pb-[20.625rem]"
+  role="region"
+  aria-label="Контактная информация"
+>
+  <div
+    class="absolute -top-96 left-1/2 w-[56rem] md:w-[40rem] -translate-x-[36rem] md:-translate-x-[24.5rem] -translate-y-[13rem] md:-translate-y-[3rem] overflow-hidden z-0"
+  >
+    <Image
+      src={buttonCircleImage}
+      alt=""
+      class="w-full h-full object-contain"
       format="webp"
       quality={80}
       loading="lazy"
@@ -17,7 +24,7 @@ const contactLink = "https://vk.me/dizaynponauke";
     />
   </div>
   <div class="mx-auto px-4 max-w-[75rem] relative">
-    <a 
+    <a
       href={contactLink}
       target="_blank"
       rel="noreferrer noopener"

@@ -11,33 +11,33 @@ declare namespace App {
 
 // Типы для CSS модулей (если будут использоваться)
 declare module '*.module.css' {
-  const classes: { [key: string]: string };
-  export default classes;
+  const classes: { [key: string]: string }
+  export default classes
 }
 
 // Типы для SVG файлов
 declare module '*.svg' {
-  const content: any;
-  export default content;
+  const content: any
+  export default content
 }
 
 // Типы для изображений
 declare module '*.png' {
-  const src: string;
-  export default src;
+  const src: string
+  export default src
 }
 
 declare module '*.jpg' {
-  const src: string;
-  export default src;
+  const src: string
+  export default src
 }
 
 declare module '*.jpeg' {
-  const src: string;
-  export default src;
+  const src: string
+  export default src
 }
 
 declare module '*.webp' {
-  const src: string;
-  export default src;
+  const src: string
+  export default src
 }
