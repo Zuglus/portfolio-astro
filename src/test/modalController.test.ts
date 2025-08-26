@@ -5,7 +5,13 @@ describe('ModalController', () => {
   it('resets state on closeModal', () => {
     const controller = ModalController()
     controller.isModalOpen = true
-    controller.currentProject = { id: '1', slides: [] } as any
+    controller.currentProject = {
+      id: '1',
+      title: 'Test',
+      description: '',
+      audience: '',
+      slides: [],
+    }
     controller.currentSlideIndex = 2
     controller.isImageZoomed = true
 
@@ -19,7 +25,13 @@ describe('ModalController', () => {
 
   it('calculates next and previous slide indices', () => {
     const controller = ModalController()
-    controller.currentProject = { slides: [1, 2, 3] } as any
+    controller.currentProject = {
+      id: '1',
+      title: 'Test',
+      description: '',
+      audience: '',
+      slides: [{}, {}, {}],
+    }
     controller.currentSlideIndex = 0
     controller.changeSlide = vi.fn()
 

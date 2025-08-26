@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets'
+import type { ImageMetadata } from 'astro'
 import SkeletonLoader from './ui/SkeletonLoader.astro'
 
 interface Props {
@@ -17,7 +18,7 @@ interface Props {
   useIntersectionObserver?: boolean
   /** Задержка анимации (для stagger эффектов) */
   animationDelay?: number
-  [key: string]: any
+  [key: string]: unknown
 }
 
 const {

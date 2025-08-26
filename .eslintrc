@@ -3,7 +3,8 @@
     "eslint:recommended",
     "standard",
     "plugin:@typescript-eslint/recommended",
-    "plugin:astro/recommended"
+    "plugin:astro/recommended",
+    "prettier"
   ],
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
@@ -11,7 +12,31 @@
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
+  "globals": {
+    "Alpine": "readonly"
+  },
   "rules": {
     "eol-last": ["error", "always"]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["public/sw.js"],
+      "env": { "worker": true },
+      "globals": {
+        "self": "readonly",
+        "caches": "readonly",
+        "location": "readonly"
+      }
+    },
+    {
+      "files": ["**/*.test.ts", "src/test/**/*.ts", "src/test/**/*.js"],
+      "globals": { "vi": "readonly" }
+    },
+    {
+      "files": ["**/*.d.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
 }

@@ -19,11 +19,6 @@ describe('Integration Tests', () => {
     })
 
     it('все ID должны быть уникальными во всех данных', () => {
-      const allIds = [
-        ...portfolioData.map((item) => item.id),
-        ...projects.map((project) => project.id),
-      ]
-
       const portfolioIds = portfolioData.map((item) => item.id)
       const projectIds = projects.map((project) => project.id)
 
@@ -41,7 +36,7 @@ describe('Integration Tests', () => {
   describe('Структура проекта', () => {
     it('все изображения в проектах должны быть валидными', () => {
       projects.forEach((project) => {
-        project.slides.forEach((slide, slideIndex) => {
+        project.slides.forEach((slide) => {
           expect(slide.image).toBeDefined()
           expect(slide.image).toBeTruthy()
           // В тестовой среде изображения импортируются как строки
@@ -65,14 +60,14 @@ describe('Integration Tests', () => {
   })
 
   describe('Событийная система', () => {
-    let eventListeners: { [key: string]: Function[] }
+    let eventListeners: { [key: string]: Array<(ev: Event) => void> }
 
     beforeEach(() => {
       eventListeners = {}
 
       // Мокаем document.addEventListener
       global.document.addEventListener = vi.fn(
-        (event: string, listener: Function) => {
+        (event: string, listener: (ev: Event) => void) => {
           if (!eventListeners[event]) {
             eventListeners[event] = []
           }
@@ -81,17 +76,19 @@ describe('Integration Tests', () => {
       )
 
       // Мокаем document.dispatchEvent
-      global.document.dispatchEvent = vi.fn((event: any) => {
+      global.document.dispatchEvent = vi.fn((event: Event) => {
         const listeners = eventListeners[event.type] || []
         listeners.forEach((listener) => listener(event))
         return true
       })
 
       // Мокаем CustomEvent
-      global.CustomEvent = vi.fn((type: string, options: any) => ({
-        type,
-        detail: options?.detail,
-      })) as any
+      global.CustomEvent = vi.fn(
+        (type: string, options?: CustomEventInit<unknown>) => ({
+          type,
+          detail: options?.detail,
+        }) as CustomEvent,
+      ) as unknown as typeof CustomEvent
     })
 
     it('должен корректно обрабатывать событие открытия модального окна', () => {

@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Mock для ImageMetadata из Astro
 global.mockImageMetadata = (src, width = 400, height = 300) => ({

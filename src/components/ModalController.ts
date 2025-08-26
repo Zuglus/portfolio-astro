@@ -1,7 +1,17 @@
+type RuntimeImage = { src?: string; width?: number; height?: number }
+type RuntimeSlide = { image?: RuntimeImage; task?: string; solution?: string }
+type RuntimeProject = {
+  id: string
+  title: string
+  description: string
+  audience: string
+  slides: RuntimeSlide[]
+}
+
 export default function ModalController() {
   return {
     isModalOpen: false,
-    currentProject: null as any,
+    currentProject: null as RuntimeProject | null,
     currentSlideIndex: 0,
     isTransitioning: false,
     isContentVisible: true,
@@ -16,8 +26,11 @@ export default function ModalController() {
     },
 
     setupEventListeners() {
-      document.addEventListener('open-modal', (e: any) => {
-        this.openModal(e.detail.projectId)
+      document.addEventListener('open-modal', (e: Event) => {
+        const ce = e as CustomEvent<{ projectId?: string }>
+        if (ce.detail?.projectId) {
+          this.openModal(ce.detail.projectId)
+        }
       })
 
       document.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -40,10 +53,11 @@ export default function ModalController() {
     async openModal(projectId: string) {
       if (this.isModalOpen) return
 
-      const projects = (window as any).portfolioProjects
+      const projects = (window as Window & { portfolioProjects?: RuntimeProject[] })
+        .portfolioProjects
       if (!projects) return
 
-      const project = projects.find((p: any) => p.id === projectId)
+      const project = projects.find((p) => p.id === projectId)
       if (project) {
         this.currentProject = project
         this.currentSlideIndex = 0
@@ -61,7 +75,7 @@ export default function ModalController() {
 
           this.isInitialLoad = false
           this.isContentVisible = true
-        } catch (error) {
+        } catch {
           // Если изображение не загрузилось, все равно показываем контент
           this.isInitialLoad = false
           this.isContentVisible = true
@@ -98,7 +112,7 @@ export default function ModalController() {
           this.currentImageAspectRatio = img.width / img.height
           resolve(img)
         }
-        img.onerror = () => reject()
+        img.onerror = () => reject(new Error('Image failed to load'))
         img.src = src
       })
     },
@@ -135,15 +149,14 @@ export default function ModalController() {
       // Ждем завершения fade-out анимации
       await new Promise((resolve) => setTimeout(resolve, 150))
 
-      let skeletonTimeout: any
-      let imageLoaded = false
-
-      // Таймер для показа скелетона через 150ms если изображение еще не загрузилось
-      skeletonTimeout = setTimeout(() => {
+      const skeletonTimeout = window.setTimeout(() => {
         if (!imageLoaded) {
           this.isImageLoading = true
         }
       }, 150)
+      let imageLoaded = false
+
+      // Таймер для показа скелетона через 150ms если изображение еще не загрузилось
 
       try {
         // Предзагружаем новое изображение
@@ -162,7 +175,7 @@ export default function ModalController() {
 
         // Ждем завершения fade-in анимации
         await new Promise((resolve) => setTimeout(resolve, 150))
-      } catch (error) {
+      } catch {
         // Если изображение не загрузилось, все равно показываем слайд
         imageLoaded = true
         clearTimeout(skeletonTimeout)

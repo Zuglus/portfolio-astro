@@ -2,7 +2,11 @@ import { fireEvent, screen, within } from '@testing-library/dom'
 
 declare global {
   interface Window {
-    __ioInstances?: any[]
+    __ioInstances?: Array<{
+      cb: (entries: Array<{ isIntersecting: boolean; target: Element }>) => void
+      observe: (el: Element) => void
+      disconnect: () => void
+    }>
   }
 }
 
@@ -46,15 +50,18 @@ function setupProgressiveImage({
 beforeEach(() => {
   window.__ioInstances = []
   class IO {
-    cb: any
-    constructor(cb: any) {
+    cb: (entries: Array<{ isIntersecting: boolean; target: Element }>) => void
+    constructor(
+      cb: (entries: Array<{ isIntersecting: boolean; target: Element }>) => void,
+    ) {
       this.cb = cb
       window.__ioInstances?.push(this)
     }
+
     observe() {}
     disconnect() {}
   }
-  // @ts-ignore
+  // @ts-expect-error: тестовый мок IntersectionObserver не соответствует полной сигнатуре
   window.IntersectionObserver = IO
 })
 

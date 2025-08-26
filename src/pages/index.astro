@@ -13,6 +13,7 @@ import { projects } from '../data/projects'
 </script>
 <script>
   import ModalController from '../components/ModalController'
+  /* global Alpine */
   document.addEventListener('alpine:init', () => {
     Alpine.data('modalController', ModalController)
   })
@@ -136,7 +137,7 @@ import { projects } from '../data/projects'
                 <img
                   x-show="!isImageLoading && !isInitialLoad"
                   x-bind:src="currentSlide?.image?.src || ''"
-                  x-bind:alt="`${currentProject?.title || ''} - слайд ${currentSlideIndex + 1}`"
+                  x-bind:alt="(currentProject?.title || '') + ' - слайд ' + (currentSlideIndex + 1)"
                   x-on:click="zoomImage()"
                   class="object-contain rounded-[1.25rem] transition-opacity duration-150 ease-in-out cursor-zoom-in hover:opacity-90"
                   x-bindx-bind:class="{
@@ -155,7 +156,7 @@ import { projects } from '../data/projects'
                 class="sr-only"
                 aria-live="polite"
                 aria-atomic="true"
-                x-text="`Слайд ${currentSlideIndex + 1} из ${currentProject?.slides?.length || 0}`"
+                x-text="'Слайд ' + (currentSlideIndex + 1) + ' из ' + (currentProject?.slides?.length || 0)"
               >
               </div>
 
@@ -181,7 +182,7 @@ import { projects } from '../data/projects'
                       x-bind:disabled="isTransitioning"
                       class="w-3 h-3 rounded-full border border-white/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 select-none"
                       x-bind:class="currentSlideIndex === index ? 'bg-white' : 'bg-white/20 hover:bg-white/40'"
-                      x-bind:aria-label="`Перейти к слайду ${index + 1} из ${currentProject?.slides?.length || 0}`"
+                      x-bind:aria-label="'Перейти к слайду ' + (index + 1) + ' из ' + (currentProject?.slides?.length || 0)"
                     ></button>
                   </template>
                 </div>
@@ -269,7 +270,7 @@ import { projects } from '../data/projects'
         <!-- Увеличенное изображение -->
         <img
           x-bind:src="currentSlide?.image?.src || ''"
-          x-bind:alt="`${currentProject?.title || ''} - слайд ${currentSlideIndex + 1} (увеличено)`"
+          x-bind:alt="(currentProject?.title || '') + ' - слайд ' + (currentSlideIndex + 1) + ' (увеличено)'"
           class="max-w-full max-h-full object-contain cursor-zoom-out"
           x-on:click="closeZoom()"
           title="Нажмите для закрытия"
