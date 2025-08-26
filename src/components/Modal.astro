@@ -1,0 +1,75 @@
+---
+import Slider from './Slider.astro'
+const { class: className, ...props } = Astro.props
+const rootClass = `fixed inset-0 z-50 flex items-center justify-center ${className ?? ''}`
+---
+
+<div
+  {...props}
+  class={rootClass}
+  style="display: none; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+  aria-describedby="modal-description"
+>
+  <div
+    x-show="isModalOpen"
+    x-on:click.stop=""
+    class="relative w-full max-w-7xl mx-auto bg-primary border border-white/10 rounded-[1.875rem] md:rounded-[1.25rem] shadow-xl overflow-hidden h-auto"
+  >
+    <div class="h-auto max-h-[90vh] overflow-y-auto modal-scrollbar">
+      <div class="p-[3.75rem] md:p-[2.5rem]">
+        <header
+          class="space-y-[2.8125rem] md:space-y-[1.875rem] mb-8"
+          x-show="currentProject"
+        >
+          <div>
+            <h3
+              id="modal-title"
+              x-text="currentProject?.title || ''"
+              class="font-mv-skifer text-[4.6875rem] md:text-[3.125rem]"
+            >
+            </h3>
+            <h4
+              id="modal-description"
+              x-text="currentProject?.description || ''"
+              class="mb-4 font-extralight text-[3.28125rem] md:text-2xl leading-normal"
+              x-show="currentProject?.description"
+            >
+            </h4>
+            <p
+              class="font-onest text-[3.28125rem] md:text-[1.25rem]"
+              x-show="currentProject?.audience"
+            >
+              <span class="font-semibold">Целевая аудитория: </span>
+              <span class="opacity-80" x-text="currentProject?.audience || ''"
+              ></span>
+            </p>
+          </div>
+        </header>
+
+        <Slider />
+      </div>
+    </div>
+
+    <button
+      x-on:click="closeModal()"
+      class="absolute top-6 right-6 p-4 md:p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white/50 z-50 group transition-all duration-300 ease-in-out shadow-lg"
+      aria-label="Закрыть"
+    >
+      <svg
+        class="w-12 h-12 md:w-6 md:h-6 text-white/80 group-hover:text-white transition-colors duration-300 ease-in-out"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+</div>
