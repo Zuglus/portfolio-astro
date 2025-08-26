@@ -95,9 +95,20 @@ const animationClass = `animate-${animationType}`;
     },
     
     forceInitialize() {
-      console.log('Принудительная инициализация изображения');
-      this.makeVisible();
-      this.setupImageHandlers();
+      try {
+        window.appLogger?.info('Принудительная инициализация изображения');
+        this.makeVisible();
+        this.setupImageHandlers();
+      } catch (error) {
+        window.appLogger?.error('Ошибка принудительной инициализации изображения', error);
+        if (window.errorHandler) {
+          window.errorHandler.handleError(error, {
+            type: 'image_force_init',
+            imageId: this.imageId,
+            element: this.$el
+          });
+        }
+      }
     },
     
     makeVisible() {
@@ -325,3 +336,8 @@ const animationClass = `animate-${animationType}`;
     </div>
   </div>
 </div>
+
+<script type="module">
+  import logger from '../utils/logger';
+  window.appLogger = logger;
+</script>
