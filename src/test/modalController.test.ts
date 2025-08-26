@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import createModalController from '../controllers/modalController'
-import type { RuntimeProject } from '../controllers/modalController'
+import type { RuntimeProject } from '../controllers/modal-store'
 import { subscribeToModalEvents } from '../controllers/eventSubscriptions'
 
 describe('ModalController', () => {
@@ -16,6 +16,7 @@ describe('ModalController', () => {
     }
     controller.currentSlideIndex = 2
     controller.isImageZoomed = true
+    document.body.style.overflow = 'hidden'
 
     controller.closeModal()
 
@@ -23,6 +24,7 @@ describe('ModalController', () => {
     expect(controller.currentProject).toBeNull()
     expect(controller.currentSlideIndex).toBe(0)
     expect(controller.isImageZoomed).toBe(false)
+    expect(document.body.style.overflow).toBe('')
   })
 
   it('calculates next and previous slide indices', () => {

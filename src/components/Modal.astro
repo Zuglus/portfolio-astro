@@ -12,9 +12,10 @@ const rootClass = `fixed inset-0 z-50 flex items-center justify-center ${classNa
   aria-modal="true"
   aria-labelledby="modal-title"
   aria-describedby="modal-description"
+  x-show="isModalOpen"
+  x-on:click.self="closeModal()"
 >
   <div
-    x-show="isModalOpen"
     x-on:click.stop=""
     class="relative w-full max-w-7xl mx-auto bg-primary border border-white/10 rounded-[1.875rem] md:rounded-[1.25rem] shadow-xl overflow-hidden h-auto"
   >
