@@ -1,12 +1,12 @@
 declare global {
   interface Window {
-    Alpine: any;
+    Alpine: any
   }
 }
 
 declare module 'alpinejs' {
-  const Alpine: any;
-  export default Alpine;
+  const Alpine: any
+  export default Alpine
 }
 
-export {};
+export {}

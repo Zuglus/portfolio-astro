@@ -1,12 +1,12 @@
 ---
 interface Props {
-  width?: string;
-  height?: string;
-  className?: string;
-  variant?: 'rectangular' | 'circle' | 'text';
-  shimmerIntensity?: 'subtle' | 'normal' | 'intense';
-  duration?: number;
-  delay?: number;
+  width?: string
+  height?: string
+  className?: string
+  variant?: 'rectangular' | 'circle' | 'text'
+  shimmerIntensity?: 'subtle' | 'normal' | 'intense'
+  duration?: number
+  delay?: number
 }
 
 const {
@@ -17,41 +17,41 @@ const {
   shimmerIntensity = 'normal',
   duration = 1.5,
   delay = 0,
-} = Astro.props;
+} = Astro.props
 
 const variantClasses = {
   rectangular: 'rounded-md',
   circle: 'rounded-full',
   text: 'rounded-sm',
-};
+}
 
 const shimmerClasses = {
   subtle: 'skeleton-shimmer-subtle',
-  normal: 'skeleton-shimmer-normal', 
+  normal: 'skeleton-shimmer-normal',
   intense: 'skeleton-shimmer-intense',
-};
+}
 
-const baseClass = 'skeleton-loader relative overflow-hidden bg-gray-200/20';
-const variantClass = variantClasses[variant];
-const shimmerClass = shimmerClasses[shimmerIntensity];
+const baseClass = 'skeleton-loader relative overflow-hidden bg-gray-200/20'
+const variantClass = variantClasses[variant]
+const shimmerClass = shimmerClasses[shimmerIntensity]
 
 const inlineStyles = {
   width,
   height,
   animationDelay: `${delay}s`,
   animationDuration: `${duration}s`,
-};
+}
 ---
 
-<div 
+<div
   class:list={[baseClass, variantClass, shimmerClass, className]}
   style={inlineStyles}
-  role="img" 
+  role="img"
   aria-label="Загрузка контента"
 >
   <!-- Shimmer overlay -->
   <div class="skeleton-shimmer-overlay"></div>
-  
+
   <!-- Дополнительный контент (слот) -->
   <slot />
 </div>
@@ -62,7 +62,7 @@ const inlineStyles = {
     --skeleton-shimmer-color: rgba(255, 255, 255, 0.4);
     --skeleton-animation-timing: var(--ease-natural);
     --skeleton-duration: var(--shimmer-duration);
-    
+
     background-color: var(--skeleton-base-color);
     position: relative;
     isolation: isolate;
@@ -85,7 +85,8 @@ const inlineStyles = {
       transparent 100%
     );
     transform: translateX(-100%);
-    animation: skeleton-shimmer var(--skeleton-duration) var(--skeleton-animation-timing) infinite;
+    animation: skeleton-shimmer var(--skeleton-duration)
+      var(--skeleton-animation-timing) infinite;
     z-index: 1;
   }
 
@@ -115,9 +116,10 @@ const inlineStyles = {
     .skeleton-shimmer-overlay {
       animation: skeleton-pulse 2s ease-in-out infinite;
     }
-    
+
     @keyframes skeleton-pulse {
-      0%, 100% {
+      0%,
+      100% {
         opacity: 1;
       }
       50% {

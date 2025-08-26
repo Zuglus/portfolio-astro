@@ -54,8 +54,8 @@
 /* Базовые стили */
 :root {
   font-size: clamp(4.27px, calc(100vw / 75), 16px);
-  --color-primary: #04061B;
-  --color-secondary: #3624A6;
+  --color-primary: #04061b;
+  --color-secondary: #3624a6;
 }
 
 html {
@@ -96,7 +96,7 @@ body.modal-open {
 }
 
 .modal-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #4A5568;
+  background: #4a5568;
 }
 
 /* Утилиты */
@@ -125,12 +125,17 @@ body.modal-open {
 
 /* Анимации */
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse-slow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -161,7 +166,9 @@ body.modal-open {
 }
 
 /* Плавные переходы для интерактивных элементов */
-button, a, [role="button"] {
+button,
+a,
+[role='button'] {
   transition: all 200ms ease;
 }
 

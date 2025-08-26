@@ -1,20 +1,20 @@
 ---
-import '../styles/global.css';
-import '../styles/constants.css';
-import '../styles/modal-animations.css';
-import '../styles/components/button-interactions.css';
-import '../styles/components/shimmer-animations.css';
-import '../styles/utilities/accessibility.css';
+import '../styles/global.css'
+import '../styles/constants.css'
+import '../styles/modal-animations.css'
+import '../styles/components/button-interactions.css'
+import '../styles/components/shimmer-animations.css'
+import '../styles/utilities/accessibility.css'
 
 export interface Props {
-    title: string;
-    description?: string;
+  title: string
+  description?: string
 }
 
-const { 
-  title = "Полина Мигранова | Графический дизайнер",
-  description = "Портфолио графического дизайнера Полины Миграновой. Дизайнер образовательных и научно-просветительских проектов, графический дизайнер, дизайнер научно-просветительских презентаций."
-} = Astro.props;
+const {
+  title = 'Полина Мигранова | Графический дизайнер',
+  description = 'Портфолио графического дизайнера Полины Миграновой. Дизайнер образовательных и научно-просветительских проектов, графический дизайнер, дизайнер научно-просветительских презентаций.',
+} = Astro.props
 ---
 
 <!doctype html>
@@ -25,55 +25,73 @@ const {
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="author" content="Полина Мигранова" />
-    <meta name="keywords" content="графический дизайнер, дизайн, дизайнер презентаций, Полина Мигранова, заказать презентацию" />
-    
+    <meta
+      name="keywords"
+      content="графический дизайнер, дизайн, дизайнер презентаций, Полина Мигранова, заказать презентацию"
+    />
+
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ru_RU" />
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    
+
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#000000" />
-    
+
     <!-- Resource hints -->
     <link rel="dns-prefetch" href="//t.me" />
-    
+
     <!-- Preload критических ресурсов -->
-    <link rel="preload" href="/fonts/MV-SKIFER.otf" as="font" type="font/otf" crossorigin />
-    <link rel="preload" href="/fonts/Onest-Regular.ttf" as="font" type="font/ttf" crossorigin />
-    
+    <link
+      rel="preload"
+      href="/fonts/MV-SKIFER.otf"
+      as="font"
+      type="font/otf"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/Onest-Regular.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    
   </head>
   <body class="bg-primary text-white font-onest">
     <!-- Skip to main content ссылка для скрин-ридеров -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded"
+    >
       Перейти к основному содержимому
     </a>
     <slot />
     <script>
       // Асинхронная загрузка Alpine.js для лучшей производительности
-      import('alpinejs').then(Alpine => {
-        window.Alpine = Alpine.default;
-        Alpine.default.start();
-      });
-      
+      import('alpinejs').then((Alpine) => {
+        window.Alpine = Alpine.default
+        Alpine.default.start()
+      })
+
       // Регистрация Service Worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
-            console.log('SW registered:', registration);
+            const registration =
+              await navigator.serviceWorker.register('/sw.js')
+            console.log('SW registered:', registration)
           } catch (error) {
-            console.log('SW registration failed:', error);
+            console.log('SW registration failed:', error)
           }
-        });
+        })
       }
     </script>
   </body>

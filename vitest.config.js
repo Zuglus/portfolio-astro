@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -15,8 +15,8 @@ export default defineConfig({
         'dist/',
         'coverage/',
         'src/assets/',
-        'src/env.d.ts'
-      ]
-    }
-  }
-});
+        'src/env.d.ts',
+      ],
+    },
+  },
+})
