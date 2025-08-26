@@ -46,6 +46,7 @@ document.addEventListener('alpine:init', () => {
 
 Attach them to markup with `x-data="modalController"`. The optional `init` method runs on mount and can register DOM listeners or perform setup.
 
+
 ## Development
 
 Install dependencies and start the dev server:
@@ -53,6 +54,17 @@ Install dependencies and start the dev server:
 ```bash
 npm install
 npm run dev
+=======
+```text
+/
+├── public/
+├── src/
+│   ├── controllers/
+│   │   └── modalController.ts
+│   ├── components/
+│   └── pages/
+│       └── index.astro
+└── package.json
 ```
 
 ### Linting
@@ -60,6 +72,9 @@ npm run dev
 ```bash
 npm run lint
 ```
+=======
+There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components. Modal behavior is handled by controller modules in `src/controllers/` and composed by `modalController.ts` for use on the index page.
+
 
 ### Testing
 
