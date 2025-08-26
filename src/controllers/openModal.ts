@@ -1,4 +1,6 @@
-import type { ModalController, RuntimeProject } from './modalController'
+import type { ModalController } from './modalController'
+import type { RuntimeProject } from './modal-store'
+import { lockBodyScroll } from './modal-ui'
 
 export async function openModal(
   controller: ModalController,
@@ -17,7 +19,7 @@ export async function openModal(
     controller.isContentVisible = false
     controller.isInitialLoad = true
     controller.isModalOpen = true
-    document.body.style.overflow = 'hidden'
+    lockBodyScroll()
 
     try {
       const firstSlide = project.slides?.[0]

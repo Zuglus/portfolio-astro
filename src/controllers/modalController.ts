@@ -1,47 +1,29 @@
 import { openModal } from './openModal'
 import { changeSlide } from './changeSlide'
 import { subscribeToModalEvents } from './eventSubscriptions'
-
-type RuntimeImage = { src?: string; width?: number; height?: number }
-type RuntimeSlide = { image?: RuntimeImage; task?: string; solution?: string }
-export type RuntimeProject = {
-  id: string
-  title: string
-  description: string
-  audience: string
-  slides: RuntimeSlide[]
-}
+import { ModalStore } from './modal-store'
+import { updateCloseHint, unlockBodyScroll } from './modal-ui'
 
 export default function createModalController() {
-  return {
-    isModalOpen: false,
-    currentProject: null as RuntimeProject | null,
-    currentSlideIndex: 0,
-    isTransitioning: false,
-    isContentVisible: true,
-    isImageLoading: false,
-    isInitialLoad: false,
-    currentImageAspectRatio: null as number | null,
-    isImageZoomed: false,
+  const store = new ModalStore()
 
+  return Object.assign(store, {
     init() {
       subscribeToModalEvents(this)
-      this.updateCloseHint()
+      updateCloseHint(this.$nextTick)
     },
 
     openModal(projectId: string) {
       return openModal(this, projectId)
     },
 
+    changeSlide(newIndex: number) {
+      return changeSlide(this, newIndex)
+    },
+
     closeModal() {
-      this.isModalOpen = false
-      this.currentProject = null
-      this.currentSlideIndex = 0
-      this.isContentVisible = true
-      this.isImageLoading = false
-      this.isInitialLoad = false
-      this.isImageZoomed = false
-      document.body.style.overflow = ''
+      ModalStore.prototype.closeModal.call(this)
+      unlockBodyScroll()
     },
 
     zoomImage() {
@@ -83,58 +65,7 @@ export default function createModalController() {
       }
       return 'w-full max-w-4xl h-[65vh] md:h-[70vh]'
     },
-
-    changeSlide(newIndex: number) {
-      return changeSlide(this, newIndex)
-    },
-
-    nextSlide() {
-      if (!this.currentProject || !this.currentProject.slides) return
-
-      const totalSlides = this.currentProject.slides.length
-      const newIndex = (this.currentSlideIndex + 1) % totalSlides
-      this.changeSlide(newIndex)
-    },
-
-    prevSlide() {
-      if (!this.currentProject || !this.currentProject.slides) return
-
-      const totalSlides = this.currentProject.slides.length
-      const newIndex =
-        this.currentSlideIndex === 0
-          ? totalSlides - 1
-          : this.currentSlideIndex - 1
-      this.changeSlide(newIndex)
-    },
-
-    goToSlide(index: number) {
-      if (
-        !this.currentProject ||
-        !this.currentProject.slides ||
-        index === this.currentSlideIndex
-      )
-        return
-      this.changeSlide(index)
-    },
-
-    get currentSlide() {
-      return this.currentProject?.slides?.[this.currentSlideIndex] || null
-    },
-
-    updateCloseHint() {
-      const isTouchDevice =
-        'ontouchstart' in window || navigator.maxTouchPoints > 0
-
-      this.$nextTick(() => {
-        const hintElement = document.getElementById('close-hint')
-        if (hintElement) {
-          hintElement.textContent = isTouchDevice
-            ? 'тап для закрытия'
-            : 'ESC или клик для закрытия'
-        }
-      })
-    },
-  }
+  })
 }
 
 export type ModalController = ReturnType<typeof createModalController>
