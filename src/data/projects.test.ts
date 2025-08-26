@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { projects } from './projects'
 import type { Project } from '../types'
 
-const imageModules = import.meta.glob('../assets/images/*/*.{png,jpg,jpeg,webp}')
+const imageModules = import.meta.glob(
+  '../assets/images/*/*.{png,jpg,jpeg,webp}',
+)
 
 const projectDirs: Record<string, string> = {
   project1: 'niti',
@@ -60,7 +62,7 @@ describe('Projects Data', () => {
     projects.forEach((project) => {
       const prefix = `../assets/images/${projectDirs[project.id]}/`
       const expectedCount = Object.keys(imageModules).filter((p) =>
-        p.startsWith(prefix)
+        p.startsWith(prefix),
       ).length
       expect(project.slides.length).toBe(expectedCount)
     })
@@ -72,7 +74,7 @@ describe('Projects Data', () => {
       expect(nitiProject).toBeDefined()
       expect(nitiProject?.title).toBe('НИТИ')
       const expected = Object.keys(imageModules).filter((p) =>
-        p.startsWith('../assets/images/niti/')
+        p.startsWith('../assets/images/niti/'),
       ).length
       expect(nitiProject?.slides.length).toBe(expected)
     })
@@ -82,7 +84,7 @@ describe('Projects Data', () => {
       expect(codiimProject).toBeDefined()
       expect(codiimProject?.title).toBe('КОДИИМ')
       const expected = Object.keys(imageModules).filter((p) =>
-        p.startsWith('../assets/images/code/')
+        p.startsWith('../assets/images/code/'),
       ).length
       expect(codiimProject?.slides.length).toBe(expected)
     })
@@ -92,7 +94,7 @@ describe('Projects Data', () => {
       expect(physicsProject).toBeDefined()
       expect(physicsProject?.title).toBe('День физики')
       const expected = Object.keys(imageModules).filter((p) =>
-        p.startsWith('../assets/images/fizics/')
+        p.startsWith('../assets/images/fizics/'),
       ).length
       expect(physicsProject?.slides.length).toBe(expected)
     })
@@ -102,7 +104,7 @@ describe('Projects Data', () => {
       expect(presentationsProject).toBeDefined()
       expect(presentationsProject?.title).toBe('Презентации')
       const expected = Object.keys(imageModules).filter((p) =>
-        p.startsWith('../assets/images/presentations/')
+        p.startsWith('../assets/images/presentations/'),
       ).length
       expect(presentationsProject?.slides.length).toBe(expected)
     })

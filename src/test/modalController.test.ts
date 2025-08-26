@@ -47,7 +47,9 @@ describe('ModalController', () => {
   it('openModal loads project data', async () => {
     const controller = createModalController()
     controller.preloadImage = vi.fn().mockResolvedValue(new Image())
-    ;(window as Window & { portfolioProjects: RuntimeProject[] }).portfolioProjects = [
+    ;(
+      window as Window & { portfolioProjects: RuntimeProject[] }
+    ).portfolioProjects = [
       {
         id: '1',
         title: 'Test',
@@ -97,7 +99,7 @@ describe('ModalController', () => {
     subscribeToModalEvents(controller)
 
     document.dispatchEvent(
-      new CustomEvent('open-modal', { detail: { projectId: '1' } })
+      new CustomEvent('open-modal', { detail: { projectId: '1' } }),
     )
     expect(controller.openModal).toHaveBeenCalledWith('1')
 

@@ -17,7 +17,12 @@ describe('progressiveImage controller', () => {
     controller.$el = document.createElement('div')
     controller.$store = {
       loading: {
-        states: { IDLE: 'IDLE', LOADING: 'LOADING', LOADED: 'LOADED', ERROR: 'ERROR' },
+        states: {
+          IDLE: 'IDLE',
+          LOADING: 'LOADING',
+          LOADED: 'LOADED',
+          ERROR: 'ERROR',
+        },
         setState: vi.fn(),
         startLoading: vi.fn(),
         setLoaded: vi.fn(),
@@ -65,6 +70,8 @@ describe('progressiveImage controller', () => {
 
     expect(controller.$store.loading.setError).toHaveBeenCalledWith(imageId)
     expect(controller.showErrorFallback).toHaveBeenCalled()
-    expect(controller.$el.classList.contains(`${animationClass}-error`)).toBe(true)
+    expect(controller.$el.classList.contains(`${animationClass}-error`)).toBe(
+      true,
+    )
   })
 })

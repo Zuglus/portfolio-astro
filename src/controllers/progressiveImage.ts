@@ -7,9 +7,15 @@ export interface ProgressiveImageOptions {
 
 declare global {
   interface Window {
-    appLogger?: { info: (...args: unknown[]) => void; error: (...args: unknown[]) => void }
+    appLogger?: {
+      info: (...args: unknown[]) => void
+      error: (...args: unknown[]) => void
+    }
     errorHandler?: {
-      handleError: (error: unknown, context: Record<string, unknown>) => Promise<unknown>
+      handleError: (
+        error: unknown,
+        context: Record<string, unknown>,
+      ) => Promise<unknown>
     }
   }
 }
@@ -31,7 +37,10 @@ export default function progressiveImage({
 
     init() {
       // Регистрируем изображение в глобальном store
-      this.$store.loading.setState(this.imageId, this.$store.loading.states.IDLE)
+      this.$store.loading.setState(
+        this.imageId,
+        this.$store.loading.states.IDLE,
+      )
 
       this.$el.style.setProperty('--animation-delay', `${animationDelay}ms`)
       this.$el.classList.add(`${animationClass}-container`)
@@ -58,7 +67,8 @@ export default function progressiveImage({
       if (useIntersectionObserver) {
         // Проверяем, виден ли элемент уже сейчас
         const rect = this.$el.getBoundingClientRect()
-        const isCurrentlyVisible = rect.top < window.innerHeight && rect.bottom > 0
+        const isCurrentlyVisible =
+          rect.top < window.innerHeight && rect.bottom > 0
 
         if (isCurrentlyVisible) {
           this.makeVisible()
@@ -78,7 +88,10 @@ export default function progressiveImage({
         this.makeVisible()
         this.setupImageHandlers()
       } catch (error) {
-        window.appLogger?.error('Ошибка принудительной инициализации изображения', error)
+        window.appLogger?.error(
+          'Ошибка принудительной инициализации изображения',
+          error,
+        )
         if (window.errorHandler) {
           window.errorHandler.handleError(error, {
             type: 'image_force_init',
@@ -103,17 +116,20 @@ export default function progressiveImage({
     setupIntersectionObserver() {
       if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
         // Используем улучшенные настройки для лучшего UX
-        this.observer = new IntersectionObserver((entries) => {
-          const entry = entries[0]
-          if (entry.isIntersecting && !this.isVisible) {
-            this.makeVisible()
-            this.observer!.disconnect()
-            this.observer = null
-          }
-        }, {
-          threshold: 0.01,
-          rootMargin: '200px 0px', // Увеличиваем для еще более раннего срабатывания
-        })
+        this.observer = new IntersectionObserver(
+          (entries) => {
+            const entry = entries[0]
+            if (entry.isIntersecting && !this.isVisible) {
+              this.makeVisible()
+              this.observer!.disconnect()
+              this.observer = null
+            }
+          },
+          {
+            threshold: 0.01,
+            rootMargin: '200px 0px', // Увеличиваем для еще более раннего срабатывания
+          },
+        )
 
         this.observer.observe(this.$el)
 
@@ -185,9 +201,15 @@ export default function progressiveImage({
         }
 
         try {
-          await window.errorHandler.handleError(new Error('Image load failed'), errorContext)
+          await window.errorHandler.handleError(
+            new Error('Image load failed'),
+            errorContext,
+          )
         } catch (retryError) {
-          console.warn('Все попытки загрузки изображения исчерпаны:', retryError)
+          console.warn(
+            'Все попытки загрузки изображения исчерпаны:',
+            retryError,
+          )
           this.showErrorFallback()
         }
       }
@@ -252,4 +274,3 @@ export default function progressiveImage({
     },
   }
 }
-

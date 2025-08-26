@@ -84,10 +84,11 @@ describe('Integration Tests', () => {
 
       // Мокаем CustomEvent
       global.CustomEvent = vi.fn(
-        (type: string, options?: CustomEventInit<unknown>) => ({
-          type,
-          detail: options?.detail,
-        }) as CustomEvent,
+        (type: string, options?: CustomEventInit<unknown>) =>
+          ({
+            type,
+            detail: options?.detail,
+          }) as CustomEvent,
       ) as unknown as typeof CustomEvent
     })
 

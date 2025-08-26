@@ -52,7 +52,9 @@ beforeEach(() => {
   class IO {
     cb: (entries: Array<{ isIntersecting: boolean; target: Element }>) => void
     constructor(
-      cb: (entries: Array<{ isIntersecting: boolean; target: Element }>) => void,
+      cb: (
+        entries: Array<{ isIntersecting: boolean; target: Element }>,
+      ) => void,
     ) {
       this.cb = cb
       window.__ioInstances?.push(this)

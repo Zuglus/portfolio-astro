@@ -1,10 +1,13 @@
 import type { ImageMetadata } from 'astro'
 import type { Project, Slide } from '../types'
 
-const imageModules = import.meta.glob('../assets/images/**/*.{png,jpg,jpeg,webp}', {
-  eager: true,
-  import: 'default',
-})
+const imageModules = import.meta.glob(
+  '../assets/images/**/*.{png,jpg,jpeg,webp}',
+  {
+    eager: true,
+    import: 'default',
+  },
+)
 
 const loadSlides = (dir: string, info: Partial<Slide>[] = []): Slide[] => {
   const prefix = `../assets/images/${dir}/`
@@ -114,4 +117,3 @@ export const projects: Project[] = [
     slides: loadSlides('presentations'),
   },
 ]
-
