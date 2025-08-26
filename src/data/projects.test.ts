@@ -2,6 +2,15 @@ import { describe, it, expect } from 'vitest'
 import { projects } from './projects'
 import type { Project } from '../types'
 
+const imageModules = import.meta.glob('../assets/images/*/*.{png,jpg,jpeg,webp}')
+
+const projectDirs: Record<string, string> = {
+  project1: 'niti',
+  project2: 'code',
+  project3: 'fizics',
+  project4: 'presentations',
+}
+
 describe('Projects Data', () => {
   it('должен экспортировать массив проектов', () => {
     expect(Array.isArray(projects)).toBe(true)
@@ -47,33 +56,55 @@ describe('Projects Data', () => {
     })
   })
 
+  it('количество слайдов соответствует количеству файлов в директории', () => {
+    projects.forEach((project) => {
+      const prefix = `../assets/images/${projectDirs[project.id]}/`
+      const expectedCount = Object.keys(imageModules).filter((p) =>
+        p.startsWith(prefix)
+      ).length
+      expect(project.slides.length).toBe(expectedCount)
+    })
+  })
+
   describe('Конкретные проекты', () => {
     it('должен содержать проект НИТИ', () => {
       const nitiProject = projects.find((p) => p.id === 'project1')
       expect(nitiProject).toBeDefined()
       expect(nitiProject?.title).toBe('НИТИ')
-      expect(nitiProject?.slides.length).toBe(5)
+      const expected = Object.keys(imageModules).filter((p) =>
+        p.startsWith('../assets/images/niti/')
+      ).length
+      expect(nitiProject?.slides.length).toBe(expected)
     })
 
     it('должен содержать проект КОДИИМ', () => {
       const codiimProject = projects.find((p) => p.id === 'project2')
       expect(codiimProject).toBeDefined()
       expect(codiimProject?.title).toBe('КОДИИМ')
-      expect(codiimProject?.slides.length).toBe(4)
+      const expected = Object.keys(imageModules).filter((p) =>
+        p.startsWith('../assets/images/code/')
+      ).length
+      expect(codiimProject?.slides.length).toBe(expected)
     })
 
     it('должен содержать проект День физики', () => {
       const physicsProject = projects.find((p) => p.id === 'project3')
       expect(physicsProject).toBeDefined()
       expect(physicsProject?.title).toBe('День физики')
-      expect(physicsProject?.slides.length).toBe(3)
+      const expected = Object.keys(imageModules).filter((p) =>
+        p.startsWith('../assets/images/fizics/')
+      ).length
+      expect(physicsProject?.slides.length).toBe(expected)
     })
 
     it('должен содержать проект Презентации', () => {
       const presentationsProject = projects.find((p) => p.id === 'project4')
       expect(presentationsProject).toBeDefined()
       expect(presentationsProject?.title).toBe('Презентации')
-      expect(presentationsProject?.slides.length).toBe(9)
+      const expected = Object.keys(imageModules).filter((p) =>
+        p.startsWith('../assets/images/presentations/')
+      ).length
+      expect(presentationsProject?.slides.length).toBe(expected)
     })
   })
 })
