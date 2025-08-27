@@ -2,7 +2,7 @@ import { openModal } from './openModal'
 import { changeSlide } from './changeSlide'
 import { subscribeToModalEvents } from './eventSubscriptions'
 import { ModalStore } from './modal-store'
-import { initModalUI } from './modal-ui'
+import { initModalUI, unlockBodyScroll } from './modal-ui'
 import type { RuntimeSlide } from './modal-store'
 import type { Project } from '../types'
 
@@ -16,6 +16,8 @@ export default function createModalController() {
       subscribeToModalEvents(this)
       initModalUI(this.$nextTick)
     },
+
+    unlockBodyScroll,
 
     openModal(projectId: string) {
       return openModal(this, projectId)
