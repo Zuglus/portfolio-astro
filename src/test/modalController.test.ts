@@ -49,17 +49,24 @@ describe('ModalController', () => {
   it('openModal loads project data', async () => {
     const controller = createModalController()
     controller.preloadImage = vi.fn().mockResolvedValue(new Image())
-    ;(
-      window as Window & { portfolioProjects: RuntimeProject[] }
-    ).portfolioProjects = [
-      {
-        id: '1',
-        title: 'Test',
-        description: '',
-        audience: '',
-        slides: [{ image: { src: 'img.jpg' } }],
-      },
-    ]
+    ;(globalThis as typeof globalThis & {
+      Alpine: { store: (name: string) => RuntimeProject[] }
+    }).Alpine = {
+      store: vi.fn().mockImplementation((name: string) => {
+        if (name === 'projects') {
+          return [
+            {
+              id: '1',
+              title: 'Test',
+              description: '',
+              audience: '',
+              slides: [{ image: { src: 'img.jpg' } }],
+            },
+          ]
+        }
+        return []
+      }),
+    }
 
     await controller.openModal('1')
 

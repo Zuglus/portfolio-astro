@@ -2,14 +2,15 @@ import type { ModalController } from './modalController'
 import type { RuntimeProject } from './modal-store'
 import { lockBodyScroll } from './modal-ui'
 
+/* global Alpine */
+
 export async function openModal(
   controller: ModalController,
   projectId: string,
 ) {
   if (controller.isModalOpen) return
 
-  const projects = (window as Window & { portfolioProjects?: RuntimeProject[] })
-    .portfolioProjects
+  const projects = Alpine.store('projects') as RuntimeProject[] | undefined
   if (!projects) return
 
   const project = projects.find((p) => p.id === projectId)
