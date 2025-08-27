@@ -1,8 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import createModalController, {
-  RuntimeProject,
-} from '../controllers/modalController'
+import createModalController, { RuntimeProject } from '../controllers/modalController'
 import { subscribeToModalEvents } from '../controllers/eventSubscriptions'
+import { OPEN_MODAL_EVENT } from '../utils/events'
 
 describe('ModalController', () => {
   it('resets state on closeModal', () => {
@@ -109,7 +108,7 @@ describe('ModalController', () => {
     subscribeToModalEvents(controller)
 
     document.dispatchEvent(
-      new CustomEvent('open-modal', { detail: { projectId: '1' } }),
+      new CustomEvent(OPEN_MODAL_EVENT, { detail: { projectId: '1' } }),
     )
     expect(controller.openModal).toHaveBeenCalledWith('1')
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { projects } from '../data/projects'
 import { portfolioData } from '../data/portfolio'
+import { OPEN_MODAL_EVENT } from '../utils/events'
 
 describe('Integration Tests', () => {
   describe('Данные портфолио и проекты', () => {
@@ -96,17 +97,17 @@ describe('Integration Tests', () => {
       const mockHandler = vi.fn()
 
       // Регистрируем обработчик
-      document.addEventListener('open-modal', mockHandler)
+      document.addEventListener(OPEN_MODAL_EVENT, mockHandler)
 
       // Диспатчим событие
-      const event = new CustomEvent('open-modal', {
+      const event = new CustomEvent(OPEN_MODAL_EVENT, {
         detail: { projectId: 'project1' },
       })
       document.dispatchEvent(event)
 
       expect(mockHandler).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'open-modal',
+          type: OPEN_MODAL_EVENT,
           detail: { projectId: 'project1' },
         }),
       )

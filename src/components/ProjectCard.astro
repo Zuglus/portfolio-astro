@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets'
 import type { PortfolioItem } from '../types'
+import { OPEN_MODAL_EVENT } from '../utils/events'
 import '../styles/components/project-card.css'
 
 interface Props {
@@ -19,8 +20,8 @@ const { project, index = 0 } = Astro.props
   data-project-id={project.id}
   x-data={`{
     handleClick() {
-      document.dispatchEvent(new CustomEvent('open-modal', { 
-        detail: { projectId: '${project.id}' } 
+      document.dispatchEvent(new CustomEvent('${OPEN_MODAL_EVENT}', {
+        detail: { projectId: '${project.id}' }
       }));
     }
   }`}
