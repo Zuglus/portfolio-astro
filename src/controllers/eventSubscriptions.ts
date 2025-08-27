@@ -1,4 +1,5 @@
 import type { ModalController } from './modalController'
+import { unlockBodyScroll } from './modal-ui'
 
 export function subscribeToModalEvents(controller: ModalController) {
   document.addEventListener('open-modal', (e: Event) => {
@@ -16,6 +17,7 @@ export function subscribeToModalEvents(controller: ModalController) {
         controller.closeZoom()
       } else {
         controller.closeModal()
+        unlockBodyScroll()
       }
     } else if (e.key === 'ArrowRight' && !controller.isImageZoomed) {
       controller.nextSlide()

@@ -51,6 +51,27 @@ describe('ModalStore', () => {
     expect(store.changeSlide).toHaveBeenCalledWith(2)
   })
 
+  it('wraps slide indices at boundaries', () => {
+    const store = new ModalStore()
+    store.currentProject = {
+      id: '1',
+      title: 'Test',
+      description: '',
+      audience: '',
+      slides: [{}, {}],
+    }
+
+    store.changeSlide = vi.fn()
+    store.currentSlideIndex = 1
+    store.nextSlide()
+    expect(store.changeSlide).toHaveBeenCalledWith(0)
+
+    store.changeSlide = vi.fn()
+    store.currentSlideIndex = 0
+    store.prevSlide()
+    expect(store.changeSlide).toHaveBeenCalledWith(1)
+  })
+
   it('does not change slides when project or slides are missing', () => {
     const store = new ModalStore()
     store.changeSlide = vi.fn()
