@@ -5,15 +5,11 @@ import PortfolioSection from '../components/PortfolioSection.astro'
 import ContactSection from '../components/ContactSection.astro'
 import Footer from '../components/Footer.astro'
 import Modal from '../components/Modal.astro'
-import { projects } from '../data/projects'
 ---
 
-<script is:inline define:vars={{ projects }}>
-  // Ensure proper UTF-8 encoding for projects data
-  window.portfolioProjects = JSON.parse(JSON.stringify(projects))
-</script>
 <script>
   import createModalController from '../controllers/modalController'
+  import '../controllers/projectsStore'
   /* global Alpine */
   document.addEventListener('alpine:init', () => {
     Alpine.data('modalController', createModalController)
