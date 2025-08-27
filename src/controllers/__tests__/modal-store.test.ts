@@ -21,6 +21,11 @@ describe('ModalStore', () => {
     expect(store.isModalOpen).toBe(false)
     expect(store.currentProject).toBeNull()
     expect(store.currentSlideIndex).toBe(0)
+    expect(store.isTransitioning).toBe(false)
+    expect(store.isContentVisible).toBe(true)
+    expect(store.isImageLoading).toBe(false)
+    expect(store.isInitialLoad).toBe(false)
+    expect(store.currentImageAspectRatio).toBeNull()
     expect(store.isImageZoomed).toBe(false)
     expect(document.body.style.overflow).toBe('hidden')
   })
@@ -46,6 +51,17 @@ describe('ModalStore', () => {
     expect(store.changeSlide).toHaveBeenCalledWith(2)
   })
 
+  it('does not change slides when project or slides are missing', () => {
+    const store = new ModalStore()
+    store.changeSlide = vi.fn()
+
+    store.nextSlide()
+    store.prevSlide()
+    store.goToSlide(1)
+
+    expect(store.changeSlide).not.toHaveBeenCalled()
+  })
+
   it('goToSlide only changes when index differs', () => {
     const store = new ModalStore()
     store.currentProject = {
@@ -63,5 +79,19 @@ describe('ModalStore', () => {
 
     store.goToSlide(2)
     expect(store.changeSlide).toHaveBeenCalledWith(2)
+  })
+
+  it('returns the current slide', () => {
+    const store = new ModalStore()
+    store.currentProject = {
+      id: '1',
+      title: 'Test',
+      description: '',
+      audience: '',
+      slides: [{ task: 'a' }, { task: 'b' }],
+    }
+    store.currentSlideIndex = 1
+
+    expect(store.currentSlide).toEqual({ task: 'b' })
   })
 })

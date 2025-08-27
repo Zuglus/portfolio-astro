@@ -29,9 +29,11 @@ export class ModalStore {
     this.isModalOpen = false
     this.currentProject = null
     this.currentSlideIndex = 0
+    this.isTransitioning = false
     this.isContentVisible = true
     this.isImageLoading = false
     this.isInitialLoad = false
+    this.currentImageAspectRatio = null
     this.isImageZoomed = false
   }
 
