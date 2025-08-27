@@ -3,6 +3,10 @@ import { changeSlide } from './changeSlide'
 import { subscribeToModalEvents } from './eventSubscriptions'
 import { ModalStore } from './modal-store'
 import { initModalUI } from './modal-ui'
+import type { RuntimeSlide } from './modal-store'
+import type { Project } from '../types'
+
+export type RuntimeProject = Omit<Project, 'slides'> & { slides: RuntimeSlide[] }
 
 export default function createModalController() {
   const store = new ModalStore()

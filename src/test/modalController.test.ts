@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import createModalController from '../controllers/modalController'
-import type { RuntimeProject } from '../controllers/modal-store'
+import createModalController, {
+  RuntimeProject,
+} from '../controllers/modalController'
 import { subscribeToModalEvents } from '../controllers/eventSubscriptions'
 
 describe('ModalController', () => {

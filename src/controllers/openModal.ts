@@ -1,5 +1,4 @@
-import type { ModalController } from './modalController'
-import type { RuntimeProject } from './modal-store'
+import type { ModalController, RuntimeProject } from './modalController'
 import { lockBodyScroll } from './modal-ui'
 
 /* global Alpine */

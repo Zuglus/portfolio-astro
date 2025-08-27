@@ -1,15 +1,10 @@
+import type { RuntimeProject } from './modalController'
+
 export type RuntimeImage = { src?: string; width?: number; height?: number }
 export type RuntimeSlide = {
   image?: RuntimeImage
   task?: string
   solution?: string
-}
-export type RuntimeProject = {
-  id: string
-  title: string
-  description: string
-  audience: string
-  slides: RuntimeSlide[]
 }
 
 export class ModalStore {
