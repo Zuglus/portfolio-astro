@@ -14,8 +14,10 @@ describe('Modal component', () => {
     const doc = parseAstroHTML(html)
     const dialog = doc.querySelector('div[role="dialog"]')
     expect(dialog).toBeTruthy()
+    expect(dialog?.getAttribute('x-on:click.self')).toContain('unlockBodyScroll')
     const close = doc.querySelector('button[aria-label="Закрыть"]')
     expect(close).toBeTruthy()
+    expect(close?.getAttribute('x-on:click')).toContain('unlockBodyScroll')
   })
 })
 

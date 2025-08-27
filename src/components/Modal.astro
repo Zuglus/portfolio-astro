@@ -4,6 +4,11 @@ const { class: className, ...props } = Astro.props
 const rootClass = `fixed inset-0 z-50 flex items-center justify-center ${className ?? ''}`
 ---
 
+<script>
+  import { unlockBodyScroll } from '../controllers/modal-ui'
+  window.unlockBodyScroll = unlockBodyScroll
+</script>
+
 <div
   {...props}
   class={rootClass}
@@ -13,7 +18,7 @@ const rootClass = `fixed inset-0 z-50 flex items-center justify-center ${classNa
   aria-labelledby="modal-title"
   aria-describedby="modal-description"
   x-show="isModalOpen"
-  x-on:click.self="closeModal()"
+  x-on:click.self="closeModal(); unlockBodyScroll()"
 >
   <div
     x-on:click.stop=""
@@ -55,7 +60,7 @@ const rootClass = `fixed inset-0 z-50 flex items-center justify-center ${classNa
     </div>
 
     <button
-      x-on:click="closeModal()"
+      x-on:click="closeModal(); unlockBodyScroll()"
       class="absolute top-6 right-6 p-4 md:p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white/50 z-50 group transition-all duration-300 ease-in-out shadow-lg"
       aria-label="Закрыть"
     >

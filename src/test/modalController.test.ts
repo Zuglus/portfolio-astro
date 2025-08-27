@@ -24,7 +24,7 @@ describe('ModalController', () => {
     expect(controller.currentProject).toBeNull()
     expect(controller.currentSlideIndex).toBe(0)
     expect(controller.isImageZoomed).toBe(false)
-    expect(document.body.style.overflow).toBe('')
+    expect(document.body.style.overflow).toBe('hidden')
   })
 
   it('calculates next and previous slide indices', () => {
@@ -106,6 +106,7 @@ describe('ModalController', () => {
     expect(controller.openModal).toHaveBeenCalledWith('1')
 
     controller.isModalOpen = true
+    document.body.style.overflow = 'hidden'
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
     expect(controller.nextSlide).toHaveBeenCalled()
 
@@ -114,6 +115,7 @@ describe('ModalController', () => {
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
     expect(controller.closeModal).toHaveBeenCalled()
+    expect(document.body.style.overflow).toBe('')
 
     controller.isImageZoomed = true
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))

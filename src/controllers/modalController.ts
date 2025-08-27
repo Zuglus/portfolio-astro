@@ -2,7 +2,7 @@ import { openModal } from './openModal'
 import { changeSlide } from './changeSlide'
 import { subscribeToModalEvents } from './eventSubscriptions'
 import { ModalStore } from './modal-store'
-import { updateCloseHint, unlockBodyScroll } from './modal-ui'
+import { initModalUI } from './modal-ui'
 
 export default function createModalController() {
   const store = new ModalStore()
@@ -10,7 +10,7 @@ export default function createModalController() {
   return Object.assign(store, {
     init() {
       subscribeToModalEvents(this)
-      updateCloseHint(this.$nextTick)
+      initModalUI(this.$nextTick)
     },
 
     openModal(projectId: string) {
@@ -19,11 +19,6 @@ export default function createModalController() {
 
     changeSlide(newIndex: number) {
       return changeSlide(this, newIndex)
-    },
-
-    closeModal() {
-      ModalStore.prototype.closeModal.call(this)
-      unlockBodyScroll()
     },
 
     zoomImage() {

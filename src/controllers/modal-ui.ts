@@ -1,4 +1,4 @@
-export function updateCloseHint(nextTick: (cb: () => void) => void) {
+export function initModalUI(nextTick: (cb: () => void) => void) {
   const isTouchDevice =
     'ontouchstart' in window || navigator.maxTouchPoints > 0
 
