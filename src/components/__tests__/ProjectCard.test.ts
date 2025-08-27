@@ -1,5 +1,6 @@
 import { fireEvent, screen, within } from '@testing-library/dom'
 import { mockPortfolioItem } from '../../test/astro-utils'
+import { OPEN_MODAL_EVENT } from '../../utils/events'
 
 describe('ProjectCard', () => {
   function renderCard() {
@@ -15,7 +16,9 @@ describe('ProjectCard', () => {
     const button = utils.getByTestId('portfolio-card')
     button.addEventListener('click', () => {
       document.dispatchEvent(
-        new CustomEvent('open-modal', { detail: { projectId: project.id } }),
+        new CustomEvent(OPEN_MODAL_EVENT, {
+          detail: { projectId: project.id },
+        }),
       )
     })
     return utils
@@ -23,7 +26,7 @@ describe('ProjectCard', () => {
 
   it('dispatches open-modal event on click', () => {
     const handler = vi.fn()
-    document.addEventListener('open-modal', handler)
+    document.addEventListener(OPEN_MODAL_EVENT, handler)
     const { getByTestId } = renderCard()
     fireEvent.click(getByTestId('portfolio-card'))
     expect(handler).toHaveBeenCalledWith(

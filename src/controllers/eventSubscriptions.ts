@@ -1,8 +1,9 @@
 import type { ModalController } from './modalController'
 import { unlockBodyScroll } from './modal-ui'
+import { OPEN_MODAL_EVENT } from '../utils/events'
 
 export function subscribeToModalEvents(controller: ModalController) {
-  document.addEventListener('open-modal', (e: Event) => {
+  document.addEventListener(OPEN_MODAL_EVENT, (e: Event) => {
     const ce = e as CustomEvent<{ projectId?: string }>
     if (ce.detail?.projectId) {
       controller.openModal(ce.detail.projectId)
