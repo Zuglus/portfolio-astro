@@ -1,5 +1,9 @@
 export type RuntimeImage = { src?: string; width?: number; height?: number }
-export type RuntimeSlide = { image?: RuntimeImage; task?: string; solution?: string }
+export type RuntimeSlide = {
+  image?: RuntimeImage
+  task?: string
+  solution?: string
+}
 export type RuntimeProject = {
   id: string
   title: string
@@ -55,12 +59,11 @@ export class ModalStore {
   }
 
   goToSlide(index: number) {
-    if (
-      !this.currentProject ||
-      !this.currentProject.slides ||
-      index === this.currentSlideIndex
-    )
+    if (!this.currentProject || !this.currentProject.slides) return
+    const totalSlides = this.currentProject.slides.length
+    if (index < 0 || index >= totalSlides || index === this.currentSlideIndex) {
       return
+    }
     this.changeSlide(index)
   }
 

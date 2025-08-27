@@ -102,6 +102,23 @@ describe('ModalStore', () => {
     expect(store.changeSlide).toHaveBeenCalledWith(2)
   })
 
+  it('goToSlide ignores out-of-range indices', () => {
+    const store = new ModalStore()
+    store.currentProject = {
+      id: '1',
+      title: 'Test',
+      description: '',
+      audience: '',
+      slides: [{}, {}],
+    }
+    store.changeSlide = vi.fn()
+
+    store.goToSlide(-1)
+    store.goToSlide(5)
+
+    expect(store.changeSlide).not.toHaveBeenCalled()
+  })
+
   it('returns the current slide', () => {
     const store = new ModalStore()
     store.currentProject = {
