@@ -4,11 +4,6 @@ const { class: className, ...props } = Astro.props
 const rootClass = `fixed inset-0 z-50 flex items-center justify-center ${className ?? ''}`
 ---
 
-<script>
-  import { unlockBodyScroll } from '../controllers/modal-ui'
-  window.unlockBodyScroll = unlockBodyScroll
-</script>
-
 <div
   {...props}
   class={rootClass}
