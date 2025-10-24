@@ -5,6 +5,9 @@ export interface ProgressiveImageOptions {
   useIntersectionObserver: boolean
 }
 
+// Timing constants
+const FORCE_INIT_DELAY_MS = 200
+
 declare global {
   interface Window {
     appLogger?: {
@@ -57,7 +60,7 @@ export default function progressiveImage({
         if (!this.isInitialized) {
           this.forceInitialize()
         }
-      }, 200)
+      }, FORCE_INIT_DELAY_MS)
     },
 
     initializeComponent() {
@@ -206,7 +209,7 @@ export default function progressiveImage({
             errorContext,
           )
         } catch (retryError) {
-          console.warn(
+          window.appLogger?.info(
             'Все попытки загрузки изображения исчерпаны:',
             retryError,
           )

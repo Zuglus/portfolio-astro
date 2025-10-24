@@ -3,8 +3,10 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": false,
+    "strict": true,
     "types": [
-      "astro/client"
+      "astro/client",
+      "vitest/globals"
     ]
   },
   "include": [

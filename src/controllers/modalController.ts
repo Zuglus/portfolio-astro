@@ -1,205 +1,235 @@
-import { delay } from '../utils/delay';
-import { OPEN_MODAL_EVENT } from '../utils/events';
-import type { Project, Slide } from '../types';
+import { delay } from '../utils/delay'
+import { OPEN_MODAL_EVENT } from '../utils/events'
+import type { Project, Slide } from '../types'
 
 /* global Alpine */
 
+// Timing constants
+const ANIMATION_DURATION_MS = 300
+const TRANSITION_DURATION_MS = 150
+const SKELETON_LOADER_DELAY_MS = 150
+
 // Helper types
 export type RuntimeSlide = Omit<Slide, 'image'> & {
-  image?: { src?: string; width?: number; height?: number };
-};
-export type RuntimeProject = Omit<Project, 'slides'> & { slides: RuntimeSlide[] };
+  image?: { src?: string; width?: number; height?: number }
+}
+export type RuntimeProject = Omit<Project, 'slides'> & {
+  slides: RuntimeSlide[]
+}
 
 // Helper functions for body scroll lock
 function lockBodyScroll() {
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden'
 }
 
 function unlockBodyScroll() {
-  document.body.style.overflow = '';
+  document.body.style.overflow = ''
 }
 
 export class ModalController {
   // --- State Properties from ModalStore ---
-  isModalOpen = false;
-  currentProject: RuntimeProject | null = null;
-  currentSlideIndex = 0;
-  isTransitioning = false;
-  isContentVisible = true;
-  isImageLoading = false;
-  isInitialLoad = false;
-  currentImageAspectRatio: number | null = null;
-  isImageZoomed = false;
+  isModalOpen = false
+  currentProject: RuntimeProject | null = null
+  currentSlideIndex = 0
+  isTransitioning = false
+  isContentVisible = true
+  isImageLoading = false
+  isInitialLoad = false
+  currentImageAspectRatio: number | null = null
+  isImageZoomed = false
+
+  // Cleanup reference for setTimeout
+  private resetStateTimeoutId: ReturnType<typeof setTimeout> | null = null
 
   // --- Initialization and Event Handling ---
   init() {
     // From eventSubscriptions.ts
     document.addEventListener(OPEN_MODAL_EVENT, (e: Event) => {
-      const ce = e as CustomEvent<{ projectId?: string }>;
+      const ce = e as CustomEvent<{ projectId?: string }>
       if (ce.detail?.projectId) {
-        this.openModal(ce.detail.projectId);
+        this.openModal(ce.detail.projectId)
       }
-    });
+    })
 
     document.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (!this.isModalOpen) return;
+      if (!this.isModalOpen) return
 
       if (e.key === 'Escape') {
         if (this.isImageZoomed) {
-          this.closeZoom();
+          this.closeZoom()
         } else {
-          this.closeModal();
+          this.closeModal()
         }
       } else if (e.key === 'ArrowRight' && !this.isImageZoomed) {
-        this.nextSlide();
+        this.nextSlide()
       } else if (e.key === 'ArrowLeft' && !this.isImageZoomed) {
-        this.prevSlide();
+        this.prevSlide()
       }
-    });
+    })
 
     // From modal-ui.ts (simplified)
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const hintElement = document.getElementById('close-hint');
+    const isTouchDevice =
+      'ontouchstart' in window || navigator.maxTouchPoints > 0
+    const hintElement = document.getElementById('close-hint')
     if (hintElement) {
       hintElement.textContent = isTouchDevice
         ? 'тап для закрытия'
-        : 'ESC или клик для закрытия';
+        : 'ESC или клик для закрытия'
     }
   }
 
   // --- Core Methods ---
   async openModal(projectId: string) {
-    if (this.isModalOpen) return;
+    if (this.isModalOpen) return
 
-    const projects = Alpine.store('projects') as RuntimeProject[] | undefined;
-    if (!projects) return;
+    const projects = Alpine.store('projects') as RuntimeProject[] | undefined
+    if (!projects) return
 
-    const project = projects.find((p) => p.id === projectId);
+    const project = projects.find((p) => p.id === projectId)
     if (project) {
-      this.currentProject = project;
-      this.currentSlideIndex = 0;
-      this.isContentVisible = false;
-      this.isInitialLoad = true;
-      this.isModalOpen = true;
-      lockBodyScroll();
+      this.currentProject = project
+      this.currentSlideIndex = 0
+      this.isContentVisible = false
+      this.isInitialLoad = true
+      this.isModalOpen = true
+      lockBodyScroll()
 
       try {
-        const firstSlide = project.slides?.[0];
+        const firstSlide = project.slides?.[0]
         if (firstSlide?.image?.src) {
-          await this.preloadImage(firstSlide.image.src);
+          await this.preloadImage(firstSlide.image.src)
         }
       } catch {
         // Ignore preload errors, content will still show
       } finally {
-        this.isInitialLoad = false;
-        this.isContentVisible = true;
+        this.isInitialLoad = false
+        this.isContentVisible = true
       }
     }
   }
 
   closeModal() {
-    this.isModalOpen = false;
-    unlockBodyScroll();
+    this.isModalOpen = false
+    unlockBodyScroll()
+
+    // Clear any existing timeout
+    if (this.resetStateTimeoutId !== null) {
+      clearTimeout(this.resetStateTimeoutId)
+    }
 
     // Reset state after a delay to allow for animations
-    setTimeout(() => {
-      this.currentProject = null;
-      this.currentSlideIndex = 0;
-      this.isTransitioning = false;
-      this.isContentVisible = true;
-      this.isImageLoading = false;
-      this.isInitialLoad = false;
-      this.currentImageAspectRatio = null;
-      this.isImageZoomed = false;
-    }, 300); // Animation duration
+    this.resetStateTimeoutId = setTimeout(() => {
+      this.currentProject = null
+      this.currentSlideIndex = 0
+      this.isTransitioning = false
+      this.isContentVisible = true
+      this.isImageLoading = false
+      this.isInitialLoad = false
+      this.currentImageAspectRatio = null
+      this.isImageZoomed = false
+      this.resetStateTimeoutId = null
+    }, ANIMATION_DURATION_MS)
   }
 
   async changeSlide(newIndex: number) {
-    if (this.isTransitioning || !this.currentProject?.slides) return;
-    if (newIndex < 0 || newIndex >= this.currentProject.slides.length) return;
+    if (this.isTransitioning || !this.currentProject?.slides) return
+    if (newIndex < 0 || newIndex >= this.currentProject.slides.length) return
 
-    this.isTransitioning = true;
-    this.isContentVisible = false;
+    this.isTransitioning = true
+    this.isContentVisible = false
 
-    await delay(150);
+    await delay(TRANSITION_DURATION_MS)
 
-    let imageLoaded = false;
+    let imageLoaded = false
     const skeletonTimeout = window.setTimeout(() => {
       if (!imageLoaded) {
-        this.isImageLoading = true;
+        this.isImageLoading = true
       }
-    }, 150);
+    }, SKELETON_LOADER_DELAY_MS)
 
     try {
-      const newSlide = this.currentProject.slides[newIndex];
+      const newSlide = this.currentProject.slides[newIndex]
       if (newSlide?.image?.src) {
-        await this.preloadImage(newSlide.image.src);
+        await this.preloadImage(newSlide.image.src)
       }
     } catch {
       // ignore preload errors
     } finally {
-      imageLoaded = true;
-      clearTimeout(skeletonTimeout);
-      this.isImageLoading = false;
-      this.currentSlideIndex = newIndex;
-      this.isContentVisible = true;
-      await delay(150);
-      this.isTransitioning = false;
+      imageLoaded = true
+      clearTimeout(skeletonTimeout)
+      this.isImageLoading = false
+      this.currentSlideIndex = newIndex
+      this.isContentVisible = true
+      await delay(TRANSITION_DURATION_MS)
+      this.isTransitioning = false
     }
   }
 
   nextSlide() {
-    if (!this.currentProject?.slides) return;
-    const totalSlides = this.currentProject.slides.length;
-    const newIndex = (this.currentSlideIndex + 1) % totalSlides;
-    this.changeSlide(newIndex);
+    if (!this.currentProject?.slides) return
+    const totalSlides = this.currentProject.slides.length
+    const newIndex = (this.currentSlideIndex + 1) % totalSlides
+    this.changeSlide(newIndex)
   }
 
   prevSlide() {
-    if (!this.currentProject?.slides) return;
-    const totalSlides = this.currentProject.slides.length;
-    const newIndex = (this.currentSlideIndex - 1 + totalSlides) % totalSlides;
-    this.changeSlide(newIndex);
+    if (!this.currentProject?.slides) return
+    const totalSlides = this.currentProject.slides.length
+    const newIndex = (this.currentSlideIndex - 1 + totalSlides) % totalSlides
+    this.changeSlide(newIndex)
   }
 
   goToSlide(index: number) {
-    if (index === this.currentSlideIndex) return;
-    this.changeSlide(index);
+    if (index === this.currentSlideIndex) return
+    this.changeSlide(index)
   }
 
   zoomImage() {
-    if (this.isTransitioning || this.isImageLoading || this.isInitialLoad) return;
-    this.isImageZoomed = true;
+    if (this.isTransitioning || this.isImageLoading || this.isInitialLoad)
+      return
+    this.isImageZoomed = true
   }
 
   closeZoom() {
-    this.isImageZoomed = false;
+    this.isImageZoomed = false
   }
 
   // --- Utility Methods ---
   preloadImage(src: string) {
     return new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
+      const img = new Image()
       img.onload = () => {
-        this.currentImageAspectRatio = img.width / img.height;
-        resolve(img);
-      };
-      img.onerror = () => reject(new Error('Image failed to load'));
-      img.src = src;
-    });
+        this.currentImageAspectRatio = img.width / img.height
+        resolve(img)
+      }
+      img.onerror = () => reject(new Error('Image failed to load'))
+      img.src = src
+    })
   }
 
   // --- Getters ---
   get currentSlide(): RuntimeSlide | null {
-    return this.currentProject?.slides?.[this.currentSlideIndex] || null;
+    return this.currentProject?.slides?.[this.currentSlideIndex] || null
   }
 
   get isLandscapeImage(): boolean {
-    return this.currentImageAspectRatio !== null && this.currentImageAspectRatio > 1.5;
+    return (
+      this.currentImageAspectRatio !== null &&
+      this.currentImageAspectRatio > 1.5
+    )
+  }
+
+  // --- Cleanup ---
+  destroy() {
+    // Clear any pending timeouts
+    if (this.resetStateTimeoutId !== null) {
+      clearTimeout(this.resetStateTimeoutId)
+      this.resetStateTimeoutId = null
+    }
   }
 }
 
 // The default export for Alpine.js
 export default function createModalController() {
-  return new ModalController();
+  return new ModalController()
 }
