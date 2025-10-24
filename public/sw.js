@@ -31,21 +31,12 @@ self.addEventListener('install', (event) => {
 })
 
 // Precaching основных ресурсов
+// Файлы с динамическими хешами (/_astro/*.js, /_astro/*.css)
+// будут кешироваться автоматически при первом запросе через Cache First стратегию
 async function precacheAssets() {
-  const cache = await caches.open(STATIC_CACHE)
-
-  // Основные CSS и JS файлы (обновленные после оптимизации)
-  const criticalAssets = [
-    '/_astro/index.R7dpLFGb.css',
-    '/_astro/Layout.astro_astro_type_script_index_0_lang.B9-nT2ni.js',
-    '/_astro/module.esm.DZ151cQZ.js',
-  ]
-
-  try {
-    await cache.addAll(criticalAssets)
-  } catch (error) {
-    console.log('Failed to precache some assets:', error)
-  }
+  // Не кешируем файлы с хешами заранее, так как они меняются при каждом билде
+  // Вместо этого полагаемся на динамическое кеширование в cacheFirst()
+  return Promise.resolve()
 }
 
 // Активация сервис-воркера
