@@ -4,7 +4,7 @@ import tailwind from '@astrojs/tailwind';
 export default defineConfig({
   integrations: [
     tailwind({
-      applyBaseStyles: false,
+      applyBaseStyles: false, // @tailwind base подключается вручную в src/styles/global.css
     })
   ],
   vite: {
