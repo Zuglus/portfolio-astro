@@ -30,6 +30,9 @@ export default function progressiveImage({
   useIntersectionObserver,
 }: ProgressiveImageOptions) {
   return {
+    $store: undefined as any,
+    $el: undefined as unknown as HTMLElement,
+    $nextTick: undefined as unknown as (cb: () => void) => void,
     imageId,
     imageLoaded: false,
     imageError: false,

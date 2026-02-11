@@ -1,4 +1,5 @@
 declare global {
+  var Alpine: any
   interface Window {
     Alpine: any
   }

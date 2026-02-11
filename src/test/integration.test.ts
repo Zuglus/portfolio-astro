@@ -40,12 +40,7 @@ describe('Integration Tests', () => {
         project.slides.forEach((slide) => {
           expect(slide.image).toBeDefined()
           expect(slide.image).toBeTruthy()
-          // В тестовой среде изображения импортируются как строки
-          if (typeof slide.image === 'string') {
-            expect(slide.image.length).toBeGreaterThan(0)
-          } else if (typeof slide.image === 'object' && slide.image.src) {
-            expect(typeof slide.image.src).toBe('string')
-          }
+          expect(typeof slide.image.src).toBe('string')
         })
       })
     })
@@ -67,7 +62,7 @@ describe('Integration Tests', () => {
       eventListeners = {}
 
       // Мокаем document.addEventListener
-      global.document.addEventListener = vi.fn(
+      document.addEventListener = vi.fn(
         (event: string, listener: (ev: Event) => void) => {
           if (!eventListeners[event]) {
             eventListeners[event] = []
@@ -77,14 +72,14 @@ describe('Integration Tests', () => {
       )
 
       // Мокаем document.dispatchEvent
-      global.document.dispatchEvent = vi.fn((event: Event) => {
+      document.dispatchEvent = vi.fn((event: Event) => {
         const listeners = eventListeners[event.type] || []
         listeners.forEach((listener) => listener(event))
         return true
       })
 
       // Мокаем CustomEvent
-      global.CustomEvent = vi.fn(
+      window.CustomEvent = vi.fn(
         (type: string, options?: CustomEventInit<unknown>) =>
           ({
             type,

@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import createModalController, {
-  ModalController,
-  RuntimeProject,
-} from '../modalController'
+import createModalController, { ModalController } from '../modalController'
+import type { RuntimeProject } from '../modalController'
 import { OPEN_MODAL_EVENT } from '../../utils/events'
 
 // Define Alpine mock type

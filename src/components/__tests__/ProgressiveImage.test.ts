@@ -71,7 +71,7 @@ describe('ProgressiveImage', () => {
   it('loads image when it intersects', () => {
     const { img } = setupProgressiveImage()
     const io = window.__ioInstances?.[0]
-    io.cb([{ isIntersecting: true, target: img }])
+    io!.cb([{ isIntersecting: true, target: img }])
     expect(img.dataset.visible).toBe('true')
   })
 
