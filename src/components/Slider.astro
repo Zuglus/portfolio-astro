@@ -116,18 +116,4 @@ const rootClass = `slider w-full max-w-[93.75rem] mx-auto overflow-hidden group 
     </div>
   </div>
 
-  <div
-    x-show="!isInitialLoad"
-    class="font-onest text-[3.28125rem] md:text-[1.25rem] space-y-4 transition-opacity duration-150 ease-in-out"
-    x-bind:class="{ 'opacity-0': !isContentVisible, 'opacity-100': isContentVisible }"
-  >
-    <p x-show="currentSlide?.task">
-      <span class="font-semibold">Задача: </span>
-      <span class="opacity-80" x-text="currentSlide?.task || ''"></span>
-    </p>
-    <p x-show="currentSlide?.solution">
-      <span class="font-semibold">Решение: </span>
-      <span class="opacity-80" x-text="currentSlide?.solution || ''"></span>
-    </p>
-  </div>
 </div>
